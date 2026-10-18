@@ -1,0 +1,37 @@
+@model MyApp.Models.Student
+
+<h1>Register Student</h1>
+
+<form asp-action="Create" method="post">
+    <div>
+        <label  asp-for="Name"></label>
+        <input asp-for="Name" />
+        <span asp-validation-for="Name"></span>
+    </div>
+    
+    <div>
+        <label asp-for="Age"></label>
+        <input asp-for="Age" type="number" />
+        <span asp-validation-for="Age"></span>
+    </div>
+
+    <div>
+        <label asp-for="Email"></label>
+        <input asp-for="Email" />
+        <span asp-validation-for="Email"></span>
+    </div>
+
+    <div>
+        <label asp-for="Course"></label>
+        <input asp-for="Course" />
+        <span asp-validation-for="Course"></span>
+    </div>
+
+    <button type="submit">Register</button>
+
+    <div asp-validation-summary="ModelOnly"></div>"
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
