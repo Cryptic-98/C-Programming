@@ -1,0 +1,119 @@
+@model HostApplicationReviewViewModel
+@{
+    ViewData["Title"] = "Review host application";
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <div class="section-header">
+            <div>
+                <h1 style="margin:0;">@Model.PropertyTitle</h1>
+                <p>Applicant: @Model.ApplicantName (@Model.ApplicantEmail) · Submitted @Model.AppliedAt.ToString("f")</p>
+            </div>
+            <span class="status-badge @(Model.Status == ApplicationStatus.Approved ? "status-badge--approved" : Model.Status == ApplicationStatus.Rejected ? "status-badge--rejected" : "status-badge--pending")">@Model.Status</span>
+        </div>
+    </header>
+
+    <div class="form-layout">
+        <aside class="content-card" style="display:flex; flex-direction:column; gap:16px;">
+            <div style="width:72px;height:72px;border-radius:50%;background:var(--sb-blue-50);display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--sb-blue-600);">
+                <i class="bi bi-person-badge"></i>
+            </div>
+            <div>
+                <h2 style="margin:0 0 8px; font-size:20px;">Application summary</h2>
+                <ul style="margin:0; padding-left:18px; display:flex; flex-direction:column; gap:8px; color:var(--sb-text-2);">
+                    <li>@Model.PropertyType</li>
+                    <li>@Model.Address, @Model.City, @Model.Country</li>
+                    <li>@Model.MaxGuests guests · @Model.Bedrooms bedrooms</li>
+                    <li>R @Model.PricePerNight.ToString("N2") per night</li>
+                    <li>R @Model.CleaningFee.ToString("N2") cleaning · R @Model.ServiceFee.ToString("N2") service</li>
+                    <li>@Model.Images.Count photo@(Model.Images.Count == 1 ? "" : "s")</li>
+                </ul>
+            </div>
+            <a asp-action="Index" class="sb-btn sb-btn--tertiary"><i class="bi bi-arrow-left"></i> All applications</a>
+        </aside>
+
+        <div class="form-card">
+            <h2>Description</h2>
+            <p style="margin:0;">@Model.PropertyDescription</p>
+
+            <h2>Property photos</h2>
+            @if (Model.Images.Any())
+            {
+                <div class="review-photo-grid">
+                    @foreach (var image in Model.Images)
+                    {
+                        <img src="@image.ImageUrl" alt="@Model.PropertyTitle" loading="lazy" />
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="form-help">No photos were supplied.</p>
+            }
+
+            <h2>Amenities</h2>
+            @if (Model.Amenities.Any())
+            {
+                <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                    @foreach (var amenity in Model.Amenities)
+                    {
+                        <span class="chip">@amenity.Name</span>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="form-help">No amenities selected.</p>
+            }
+
+            @if (Model.Status == ApplicationStatus.Pending)
+            {
+                <h2>Decision</h2>
+                <div class="review-actions">
+                    <form asp-action="Review" method="post">
+                        <input type="hidden" name="ApplicationId" value="@Model.Id" />
+                        <button class="sb-btn sb-btn--primary" type="submit" name="Approve" value="true">Approve application</button>
+                    </form>
+                </div>
+                <form asp-action="Review" method="post" class="reject-form">
+                    <input type="hidden" name="ApplicationId" value="@Model.Id" />
+                    <input type="hidden" name="Approve" value="false" />
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label" for="rejection-reason">Reason for rejection</label>
+                        <textarea class="form-textarea" id="rejection-reason" name="RejectionReason" minlength="10" maxlength="500" rows="3" required placeholder="Explain what needs to change (at least 10 characters)."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button class="sb-btn sb-btn--danger" type="submit">Reject application</button>
+                    </div>
+                </form>
+            }
+            else if (!string.IsNullOrWhiteSpace(Model.RejectionReason))
+            {
+                <h2>Rejection reason</h2>
+                <p style="margin:0;">@Model.RejectionReason</p>
+            }
+        </div>
+    </div>
+
+    <style>
+        .review-photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .review-photo-grid img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: var(--sb-r-sm);
+        }
+        .reject-form {
+            border-top: 1px solid var(--sb-border-soft);
+            padding-top: var(--sb-5);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+    </style>
+</section>

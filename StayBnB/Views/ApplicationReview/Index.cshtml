@@ -1,0 +1,29 @@
+@model IEnumerable<HostApplicationReviewViewModel>
+@{
+    ViewData["Title"] = "Host applications";
+    var selected = ViewBag.SelectedStatus as ApplicationStatus?;
+}
+<section class="container listing-page">
+    <h1>Host applications</h1>
+    <nav>
+        <a asp-action="Index">All</a>
+        @foreach (var status in Enum.GetValues<ApplicationStatus>())
+        {
+            <a asp-action="Index" asp-route-status="@status">@status</a>
+        }
+    </nav>
+    @if (!Model.Any()) { <p>No applications found@(selected.HasValue ? $" with status {selected}" : string.Empty).</p> }
+    @foreach (var application in Model)
+    {
+        <article class="booking-row">
+            <img src="@(application.Images.FirstOrDefault(i => i.IsPrimary)?.ImageUrl ?? application.Images.FirstOrDefault()?.ImageUrl)" alt="@application.PropertyTitle" width="180" />
+            <div>
+                <h2><a asp-action="Details" asp-route-id="@application.Id">@application.PropertyTitle</a></h2>
+                <p>@application.ApplicantName · @application.ApplicantEmail</p>
+                <p>@application.City · @application.PropertyType · R @application.PricePerNight.ToString("N2") · @application.Status</p>
+                <p>@application.ImageCount photos · Submitted @application.AppliedAt.ToString("d MMM yyyy")</p>
+                <a asp-action="Details" asp-route-id="@application.Id">Review application</a>
+            </div>
+        </article>
+    }
+</section>

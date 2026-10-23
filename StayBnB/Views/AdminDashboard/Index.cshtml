@@ -1,0 +1,26 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin dashboard";
+}
+<section class="container listing-page">
+    <h1>Administration</h1>
+    <p>Pending applications: @Model.PendingApplications · Total applications: @Model.TotalApplications · Active Hosts: @Model.ActiveHosts · Guests: @Model.TotalGuests · Users: @Model.TotalUsers · Today's check-ins: @Model.BookingsToday</p>
+    <nav>
+        <a asp-controller="ApplicationReview" asp-action="Index">Host applications</a>
+        <a asp-controller="ActivityLog" asp-action="Index">Activity logs</a>
+        @if (User.IsInRole("SuperAdmin")) { <a asp-controller="UserManagement" asp-action="Index">User management</a> }
+    </nav>
+    <h2>Recent applications</h2>
+    @foreach (var application in Model.RecentApplications)
+    {
+        <article>
+            <h3><a asp-controller="ApplicationReview" asp-action="Details" asp-route-id="@application.Id">@application.PropertyTitle</a></h3>
+            <p>@application.ApplicantName · @application.City · @application.Status · @application.AppliedAt.ToString("d MMM yyyy")</p>
+        </article>
+    }
+    <h2>Recent activity</h2>
+    @foreach (var activity in Model.RecentActivity)
+    {
+        <p>@activity.CreatedAt.ToString("g") · @activity.UserName · @activity.Action</p>
+    }
+</section>

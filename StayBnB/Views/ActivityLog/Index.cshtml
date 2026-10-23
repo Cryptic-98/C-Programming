@@ -1,0 +1,80 @@
+@model ActivityLogFilterViewModel
+@{
+    ViewData["Title"] = "Activity logs";
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <h1>Activity logs</h1>
+        <p>Audit trail of sign-ins, role changes, bookings, applications and check-ins.</p>
+    </header>
+
+    <form asp-action="Index" method="get" class="form-card">
+        <div class="form-grid">
+            <div class="form-group" style="margin:0;">
+                <label class="form-label" asp-for="Type"></label>
+                <select class="form-select" asp-for="Type">
+                    <option value="">All activity</option>
+                    @foreach (var type in (IEnumerable<ActivityType>)ViewBag.Types)
+                    {
+                        <option value="@type">@type</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group" style="margin:0;">
+                <label class="form-label" asp-for="UserSearch"></label>
+                <input class="form-input" asp-for="UserSearch" placeholder="Name or email" />
+            </div>
+            <div class="form-group" style="margin:0;">
+                <label class="form-label" asp-for="From"></label>
+                <input class="form-input" asp-for="From" type="date" />
+            </div>
+            <div class="form-group" style="margin:0;">
+                <label class="form-label" asp-for="To"></label>
+                <input class="form-input" asp-for="To" type="date" />
+            </div>
+        </div>
+        <div class="form-actions">
+            <button class="sb-btn sb-btn--primary" type="submit">Filter</button>
+            <a asp-action="Index" class="sb-btn sb-btn--tertiary">Clear</a>
+        </div>
+    </form>
+
+    <div class="content-card" style="padding:0; overflow-x:auto;">
+        <table class="data-table">
+            <thead>
+                <tr><th>Date</th><th>User</th><th>Type</th><th>Action</th><th>IP address</th></tr>
+            </thead>
+            <tbody>
+                @if (!Model.Results.Any())
+                {
+                    <tr><td colspan="5" style="text-align:center; color:var(--sb-text-2); padding:28px;">No activity matches these filters.</td></tr>
+                }
+                @foreach (var entry in Model.Results)
+                {
+                    <tr>
+                        <td>@entry.CreatedAt.ToString("g")</td>
+                        <td>@entry.UserName</td>
+                        <td><span class="status-badge status-badge--pending">@entry.ActivityType</span></td>
+                        <td>@entry.Action</td>
+                        <td>@entry.IpAddress</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="page-actions" style="justify-content:space-between;">
+        <span style="color:var(--sb-text-2);">@Model.TotalResults result@(Model.TotalResults == 1 ? "" : "s") · Page @Model.Page of @Model.TotalPages</span>
+        <span class="page-actions">
+            @if (Model.Page > 1)
+            {
+                <a asp-action="Index" asp-route-page="@(Model.Page - 1)" asp-route-type="@Model.Type" asp-route-userSearch="@Model.UserSearch" asp-route-from="@Model.From?.ToString("yyyy-MM-dd")" asp-route-to="@Model.To?.ToString("yyyy-MM-dd")" class="sb-btn sb-btn--tertiary">Previous</a>
+            }
+            @if (Model.Page < Model.TotalPages)
+            {
+                <a asp-action="Index" asp-route-page="@(Model.Page + 1)" asp-route-type="@Model.Type" asp-route-userSearch="@Model.UserSearch" asp-route-from="@Model.From?.ToString("yyyy-MM-dd")" asp-route-to="@Model.To?.ToString("yyyy-MM-dd")" class="sb-btn sb-btn--tertiary">Next</a>
+            }
+        </span>
+    </div>
+</section>

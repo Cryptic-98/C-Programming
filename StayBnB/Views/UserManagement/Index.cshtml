@@ -1,0 +1,61 @@
+@model IEnumerable<AdminUserViewModel>
+@{
+    ViewData["Title"] = "User management";
+    var search = ViewBag.Search as string;
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <h1>User management</h1>
+        <p>Search registered users and promote eligible Guests to Admin.</p>
+    </header>
+
+    <form asp-action="Index" method="get" class="form-card">
+        <div class="form-grid">
+            <div class="form-group" style="margin:0;">
+                <label class="form-label" for="search">Search users</label>
+                <input class="form-input" id="search" name="search" value="@search" placeholder="Name or email" />
+            </div>
+        </div>
+        <div class="form-actions">
+            <button class="sb-btn sb-btn--primary" type="submit">Search</button>
+            <a asp-action="Index" class="sb-btn sb-btn--tertiary">Clear</a>
+        </div>
+    </form>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-people"></i></div>
+            <h2>No users found</h2>
+            <p style="color:var(--sb-text-2); margin:0;">Try a different name or email.</p>
+        </div>
+    }
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+        @foreach (var user in Model)
+        {
+            <article class="form-card" style="padding:var(--sb-5);">
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                    <div style="display:flex; align-items:center; gap:14px; min-width:0;">
+                        <span class="conversation-row__avatar"><i class="bi bi-person"></i></span>
+                        <div>
+                            <h2 style="margin:0; font-size:18px;">@user.FullName</h2>
+                            <p style="margin:2px 0 0; color:var(--sb-text-2); font-size:14px;">@user.Email · Joined @user.CreatedAt.ToString("d MMM yyyy") · @user.PropertyCount listing@(user.PropertyCount == 1 ? "" : "s")</p>
+                        </div>
+                    </div>
+                    <div class="page-actions">
+                        <span class="status-badge @(user.Role == "Admin" || user.Role == "SuperAdmin" ? "status-badge--active" : user.Role == "Host" ? "status-badge--approved" : "status-badge--pending")">@user.Role</span>
+                        @if (user.Role == "Guest")
+                        {
+                            <form asp-action="PromoteToAdmin" method="post" onsubmit="return confirm('Promote this Guest to Admin?')">
+                                <input type="hidden" name="UserId" value="@user.Id" />
+                                <button class="sb-btn sb-btn--secondary" type="submit">Promote to Admin</button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+</section>
