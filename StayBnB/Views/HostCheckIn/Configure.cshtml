@@ -1,0 +1,104 @@
+@model CheckInProcessViewModel
+@{
+    ViewData["Title"] = "Configure check-in";
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <h1>Check-in process</h1>
+        <p>@Model.PropertyTitle — set the steps guests complete before they arrive.</p>
+    </header>
+
+    <div class="form-layout">
+        <aside class="content-card" style="display:flex; flex-direction:column; gap:16px;">
+            <div style="width:72px;height:72px;border-radius:50%;background:var(--sb-blue-50);display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--sb-blue-600);">
+                <i class="bi bi-list-check"></i>
+            </div>
+            <div>
+                <h2 style="margin:0 0 8px; font-size:20px;">How it works</h2>
+                <p style="margin:0; color:var(--sb-text-2);">Guests work through these steps after booking. Document steps let them upload an ID or passport for you to verify.</p>
+            </div>
+            <ul style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:8px; color:var(--sb-text-2);">
+                <li>At least one step is required.</li>
+                <li>Step types: text, document upload or acknowledgement.</li>
+                <li>Order controls the sequence guests see.</li>
+            </ul>
+            <a asp-action="Submissions" class="sb-btn sb-btn--tertiary"><i class="bi bi-inbox"></i> View submissions</a>
+        </aside>
+
+        <form asp-action="Configure" method="post" class="form-card">
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+            <input asp-for="PropertyId" type="hidden" />
+
+            <h2>Process details</h2>
+            <div class="form-grid">
+                <div class="form-group form-group--wide" style="margin:0;">
+                    <label class="form-label" asp-for="Title"></label>
+                    <input class="form-input" asp-for="Title" placeholder="e.g. Arrival checklist" />
+                    <span class="field-validation-error" asp-validation-for="Title"></span>
+                </div>
+            </div>
+
+            <h2>Steps</h2>
+            <span class="field-validation-error" asp-validation-for="Steps"></span>
+            @for (var i = 0; i < Model.Steps.Count; i++)
+            {
+                <fieldset class="form-step">
+                    <legend>Step @(i + 1)</legend>
+                    <input asp-for="Steps[i].Order" type="hidden" />
+                    <div class="form-grid">
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label" asp-for="Steps[i].Type">Step type</label>
+                            <select class="form-select" asp-for="Steps[i].Type">
+                                <option value="Text">Text</option>
+                                <option value="Document">Document</option>
+                                <option value="Acknowledge">Acknowledge</option>
+                            </select>
+                            <span class="field-validation-error" asp-validation-for="Steps[i].Type"></span>
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label" asp-for="Steps[i].DocumentType">Required document type</label>
+                            <select class="form-select" asp-for="Steps[i].DocumentType">
+                                <option value="">Not applicable</option>
+                                <option value="ID">ID</option>
+                                <option value="Passport">Passport</option>
+                            </select>
+                            <span class="field-validation-error" asp-validation-for="Steps[i].DocumentType"></span>
+                        </div>
+                        <div class="form-group form-group--wide" style="margin:0;">
+                            <label class="form-label" asp-for="Steps[i].Title">Title</label>
+                            <input class="form-input" asp-for="Steps[i].Title" placeholder="What should the guest do?" />
+                            <span class="field-validation-error" asp-validation-for="Steps[i].Title"></span>
+                        </div>
+                        <div class="form-group form-group--wide" style="margin:0;">
+                            <label class="form-label" asp-for="Steps[i].Instructions">Instructions</label>
+                            <textarea class="form-textarea" asp-for="Steps[i].Instructions" rows="3" placeholder="Explain the step in plain language."></textarea>
+                            <span class="field-validation-error" asp-validation-for="Steps[i].Instructions"></span>
+                        </div>
+                    </div>
+                </fieldset>
+            }
+
+            <div class="form-actions">
+                <button class="sb-btn sb-btn--primary" type="submit">Save check-in process</button>
+                <a asp-action="Index" asp-controller="HostDashboard" class="sb-btn sb-btn--tertiary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <style>
+        .form-step {
+            border: 1px solid var(--sb-border-soft);
+            border-radius: var(--sb-r-md);
+            padding: var(--sb-5);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .form-step legend {
+            padding: 0 8px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+    </style>
+</section>

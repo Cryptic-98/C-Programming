@@ -1,0 +1,121 @@
+@model IEnumerable<HostBookingListItemViewModel>
+@{
+    ViewData["Title"] = "Booking requests";
+    var statuses = Enum.GetValues<BookingStatus>();
+    var current = Context.Request.Query["status"].ToString();
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <div class="section-header">
+            <div>
+                <h1 style="margin:0;">Booking requests</h1>
+                <p>Approve or decline requests, and track your upcoming stays.</p>
+            </div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a asp-action="Index" class="filter-pill @(string.IsNullOrEmpty(current) ? "is-active" : "")">All</a>
+            @foreach (var status in statuses)
+            {
+                <a asp-action="Index" asp-route-status="@status" class="filter-pill @(string.Equals(current, status.ToString(), StringComparison.OrdinalIgnoreCase) ? "is-active" : "")">@status</a>
+            }
+        </div>
+    </header>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-calendar-check"></i></div>
+            <h2>No bookings match this filter</h2>
+            <p style="color:var(--sb-text-2); margin:0;">New requests will appear here.</p>
+        </div>
+    }
+
+    <div style="display:flex; flex-direction:column; gap:16px;">
+        @foreach (var booking in Model)
+        {
+            <article class="form-card">
+                <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-start;">
+                    @if (!string.IsNullOrWhiteSpace(booking.PropertyImageUrl))
+                    {
+                        <img src="@booking.PropertyImageUrl" alt="@booking.PropertyTitle" style="width:160px; height:110px; object-fit:cover; border-radius:var(--sb-r-sm);" />
+                    }
+                    <div style="flex:1; min-width:220px; display:flex; flex-direction:column; gap:6px;">
+                        <div class="section-header">
+                            <h2 style="margin:0; font-size:20px;">@booking.PropertyTitle</h2>
+                            <span class="status-badge @(booking.Status == BookingStatus.Approved ? "status-badge--approved" : booking.Status == BookingStatus.Rejected ? "status-badge--rejected" : booking.Status == BookingStatus.CheckedIn ? "status-badge--checkedin" : booking.Status == BookingStatus.Completed ? "status-badge--completed" : booking.Status == BookingStatus.Cancelled ? "status-badge--cancelled" : "status-badge--pending")">@booking.Status</span>
+                        </div>
+                        <p style="margin:0; color:var(--sb-text-2);">Guest: @booking.GuestName · @booking.NumberOfGuests guest@(booking.NumberOfGuests == 1 ? "" : "s")</p>
+                        <p style="margin:0; color:var(--sb-text-2);">@booking.CheckInDate.ToString("d MMM yyyy") – @booking.CheckOutDate.ToString("d MMM yyyy") · R @booking.TotalPrice.ToString("N2")</p>
+                        <p style="margin:0; color:var(--sb-text-2);">Requested @booking.CreatedAt.ToString("d MMM yyyy")</p>
+                    </div>
+                </div>
+
+                @if (booking.Status == BookingStatus.Pending)
+                {
+                    <div class="booking-actions">
+                        <form asp-action="Approve" asp-route-id="@booking.Id" method="post">
+                            <button class="sb-btn sb-btn--primary" type="submit">Approve</button>
+                        </form>
+                        <form asp-action="Reject" asp-route-id="@booking.Id" method="post" class="reject-inline">
+                            <div class="form-group" style="margin:0; flex:1; min-width:200px;">
+                                <label class="form-label" for="reason-@booking.Id">Reason for declining</label>
+                                <input class="form-input" id="reason-@booking.Id" name="reason" required maxlength="500" placeholder="Let the guest know why" />
+                            </div>
+                            <button class="sb-btn sb-btn--danger" type="submit">Decline</button>
+                        </form>
+                    </div>
+                }
+
+                <div class="booking-links">
+                    @if (booking.HasCheckInSubmission)
+                    {
+                        <a asp-controller="HostCheckIn" asp-action="Submissions" class="sb-btn sb-btn--tertiary"><i class="bi bi-clipboard-check"></i> Review guest check-in</a>
+                    }
+                    @if (booking.Status == BookingStatus.CheckedIn && booking.CheckOutDate.Date <= DateTime.Today)
+                    {
+                        <form asp-action="Complete" asp-route-id="@booking.Id" method="post">
+                            <button class="sb-btn sb-btn--secondary" type="submit">Mark stay completed</button>
+                        </form>
+                    }
+                </div>
+            </article>
+        }
+    </div>
+
+    <style>
+        .filter-pill {
+            padding: 8px 16px;
+            border-radius: var(--sb-r-pill);
+            border: 1px solid var(--sb-border);
+            color: var(--sb-text);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .filter-pill.is-active {
+            border-color: var(--sb-blue-600);
+            background: var(--sb-blue-100);
+            color: var(--sb-blue-700);
+        }
+        .booking-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 12px;
+            border-top: 1px solid var(--sb-border-soft);
+            padding-top: var(--sb-4);
+        }
+        .reject-inline {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 12px;
+            flex: 1;
+        }
+        .booking-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+    </style>
+</section>

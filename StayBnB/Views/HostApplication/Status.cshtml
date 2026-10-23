@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Host application status";
+    var applications = ViewBag.Applications as List<HostApplicationStatusViewModel> ?? new();
+}
+<section class="container listing-page">
+    <h1>Your Host applications</h1>
+    @if (applications.Count == 0)
+    {
+        <p>You have not submitted a Host application yet.</p>
+        <a class="sb-btn sb-btn--primary" asp-action="Create">Start an application</a>
+    }
+    @foreach (var application in applications)
+    {
+        <article class="booking-row">
+            <img src="@application.PropertyImageUrl" alt="@application.PropertyTitle" width="180" />
+            <div>
+                <h2>@application.PropertyTitle · @application.PropertyCity</h2>
+                <p>Status: <strong>@application.Status</strong> · Submitted @application.AppliedAt.ToString("d MMM yyyy")</p>
+                @if (application.ReviewedAt.HasValue) { <p>Reviewed @application.ReviewedAt.Value.ToString("d MMM yyyy")</p> }
+                @if (!string.IsNullOrWhiteSpace(application.RejectionReason)) { <p>Reason: @application.RejectionReason</p> }
+                @if (application.Status == ApplicationStatus.Approved)
+                {
+                    <a asp-controller="HostDashboard" asp-action="Index">Go to Host dashboard</a>
+                }
+            </div>
+        </article>
+    }
+</section>

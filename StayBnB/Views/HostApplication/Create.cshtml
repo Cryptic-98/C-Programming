@@ -1,0 +1,144 @@
+@model HostApplicationViewModel
+@using StayBnB.Models.Entities
+@{
+    ViewData["Title"] = "Become a Host";
+    var amenities = ViewBag.Amenities as IEnumerable<Amenity> ?? Enumerable.Empty<Amenity>();
+    var selectedAmenities = Model.SelectedAmenityIds.ToHashSet();
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <h1>Apply to become a Host</h1>
+        <p>Tell us about your place. Your listing stays pending until an admin reviews it.</p>
+    </header>
+
+    <div class="form-layout">
+        <aside class="content-card" style="display:flex; flex-direction:column; gap:16px;">
+            <div style="width:72px;height:72px;border-radius:50%;background:var(--sb-blue-50);display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--sb-blue-600);">
+                <i class="bi bi-house-add"></i>
+            </div>
+            <div>
+                <h2 style="margin:0 0 8px; font-size:20px;">Before you apply</h2>
+                <p style="margin:0; color:var(--sb-text-2);">Applications are reviewed by our team. You can add more listings from your host dashboard once approved.</p>
+            </div>
+            <ul style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:8px; color:var(--sb-text-2);">
+                <li>A clear title and description.</li>
+                <li>An accurate address and city.</li>
+                <li>Nightly, cleaning and service fees.</li>
+                <li>At least one property photo (JPG, PNG or WebP, max 5 MB each).</li>
+            </ul>
+            <a asp-action="Status" class="sb-btn sb-btn--tertiary"><i class="bi bi-clock-history"></i> View application status</a>
+        </aside>
+
+        <form asp-action="Create" method="post" enctype="multipart/form-data" class="form-card">
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+            <input asp-for="SkipApplicationReview" type="hidden" />
+
+            <h2>Property details</h2>
+            <div class="form-grid">
+                <div class="form-group form-group--wide" style="margin:0;">
+                    <label class="form-label" asp-for="Title"></label>
+                    <input class="form-input" asp-for="Title" placeholder="e.g. Sunny loft near the beach" />
+                    <span class="field-validation-error" asp-validation-for="Title"></span>
+                </div>
+                <div class="form-group form-group--wide" style="margin:0;">
+                    <label class="form-label" asp-for="Description"></label>
+                    <textarea class="form-textarea" asp-for="Description" rows="6" maxlength="4000" placeholder="Describe the space, the neighbourhood and what guests can expect."></textarea>
+                    <span class="field-validation-error" asp-validation-for="Description"></span>
+                </div>
+            </div>
+
+            <h2>Location</h2>
+            <div class="form-grid">
+                <div class="form-group form-group--wide" style="margin:0;">
+                    <label class="form-label" asp-for="Address"></label>
+                    <input class="form-input" asp-for="Address" placeholder="Street address" />
+                    <span class="field-validation-error" asp-validation-for="Address"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="City"></label>
+                    <input class="form-input" asp-for="City" placeholder="City" />
+                    <span class="field-validation-error" asp-validation-for="City"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="Country"></label>
+                    <input class="form-input" asp-for="Country" placeholder="Country" />
+                    <span class="field-validation-error" asp-validation-for="Country"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="PropertyType"></label>
+                    <select class="form-select" asp-for="PropertyType">
+                        <option value="">Choose type</option>
+                        @foreach (var type in Enum.GetValues<PropertyType>())
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    </select>
+                    <span class="field-validation-error" asp-validation-for="PropertyType"></span>
+                </div>
+            </div>
+
+            <h2>Capacity &amp; pricing</h2>
+            <div class="form-grid form-grid--three">
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="MaxGuests"></label>
+                    <input class="form-input" asp-for="MaxGuests" type="number" min="1" max="50" />
+                    <span class="field-validation-error" asp-validation-for="MaxGuests"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="Bedrooms"></label>
+                    <input class="form-input" asp-for="Bedrooms" type="number" min="0" max="50" />
+                    <span class="field-validation-error" asp-validation-for="Bedrooms"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="PricePerNight"></label>
+                    <input class="form-input" asp-for="PricePerNight" type="number" min="1" step="0.01" placeholder="R 0.00" />
+                    <span class="field-validation-error" asp-validation-for="PricePerNight"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="CleaningFee"></label>
+                    <input class="form-input" asp-for="CleaningFee" type="number" min="0" step="0.01" placeholder="R 0.00" />
+                    <span class="field-validation-error" asp-validation-for="CleaningFee"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="ServiceFee"></label>
+                    <input class="form-input" asp-for="ServiceFee" type="number" min="0" step="0.01" placeholder="R 0.00" />
+                    <span class="field-validation-error" asp-validation-for="ServiceFee"></span>
+                </div>
+            </div>
+
+            <h2>Amenities</h2>
+            <p class="form-help">Select everything guests can use during their stay.</p>
+            <div class="check-grid">
+                @foreach (var amenity in amenities)
+                {
+                    <label class="form-check">
+                        <input type="checkbox" name="SelectedAmenityIds" value="@amenity.Id" checked="@selectedAmenities.Contains(amenity.Id)" />
+                        <span>@amenity.Name</span>
+                    </label>
+                }
+            </div>
+
+            <h2>Photos</h2>
+            <div class="form-group form-group--wide" style="margin:0;">
+                <label class="form-label" asp-for="Images">Property photos (required)</label>
+                <div class="form-file">
+                    <input asp-for="Images" type="file" accept=".jpg,.jpeg,.png,.webp" multiple />
+                </div>
+                <p class="form-help">Add at least one photo to submit. JPG, PNG and WebP; up to 5 MB each.</p>
+                <span class="field-validation-error" asp-validation-for="Images"></span>
+            </div>
+            <div class="form-group" style="margin:0; max-width:260px;">
+                <label class="form-label" asp-for="PrimaryImageIndex">Cover photo</label>
+                <input class="form-input" asp-for="PrimaryImageIndex" type="number" min="0" max="20" />
+                <p class="form-help">Which uploaded photo is the cover? Start counting at 0.</p>
+                <span class="field-validation-error" asp-validation-for="PrimaryImageIndex"></span>
+            </div>
+
+            <div class="form-actions">
+                <button class="sb-btn sb-btn--primary" type="submit">Submit application</button>
+                <a asp-controller="Home" asp-action="Index" class="sb-btn sb-btn--tertiary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>

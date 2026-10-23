@@ -1,0 +1,169 @@
+@model HostPropertyEditViewModel
+@using StayBnB.Models.Entities
+@{
+    ViewData["Title"] = "Edit property";
+    var amenities = ViewBag.Amenities as IEnumerable<Amenity> ?? Enumerable.Empty<Amenity>();
+    var selectedAmenities = Model.SelectedAmenityIds.ToHashSet();
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <h1>Edit listing</h1>
+        <p>Update the details guests see on your property page.</p>
+    </header>
+
+    <div class="form-layout">
+        <aside class="content-card" style="display:flex; flex-direction:column; gap:16px;">
+            <div style="width:72px;height:72px;border-radius:50%;background:var(--sb-blue-50);display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--sb-blue-600);">
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            <div>
+                <h2 style="margin:0 0 8px; font-size:20px;">Changes are live</h2>
+                <p style="margin:0; color:var(--sb-text-2);">Updates to pricing, capacity and amenities apply to new bookings immediately.</p>
+            </div>
+            <a asp-action="Index" class="sb-btn sb-btn--tertiary"><i class="bi bi-arrow-left"></i> My listings</a>
+            <a asp-controller="Properties" asp-action="Details" asp-route-id="@Model.Id" class="sb-btn sb-btn--secondary"><i class="bi bi-eye"></i> View listing</a>
+        </aside>
+
+        <form asp-action="Edit" method="post" enctype="multipart/form-data" class="form-card">
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+            <input asp-for="Id" type="hidden" />
+
+            <h2>Property details</h2>
+            <div class="form-grid">
+                <div class="form-group form-group--wide" style="margin:0;">
+                    <label class="form-label" asp-for="Title"></label>
+                    <input class="form-input" asp-for="Title" />
+                    <span class="field-validation-error" asp-validation-for="Title"></span>
+                </div>
+                <div class="form-group form-group--wide" style="margin:0;">
+                    <label class="form-label" asp-for="Description"></label>
+                    <textarea class="form-textarea" asp-for="Description" rows="6" maxlength="4000"></textarea>
+                    <span class="field-validation-error" asp-validation-for="Description"></span>
+                </div>
+            </div>
+
+            <h2>Location</h2>
+            <div class="form-grid">
+                <div class="form-group form-group--wide" style="margin:0;">
+                    <label class="form-label" asp-for="Address"></label>
+                    <input class="form-input" asp-for="Address" />
+                    <span class="field-validation-error" asp-validation-for="Address"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="City"></label>
+                    <input class="form-input" asp-for="City" />
+                    <span class="field-validation-error" asp-validation-for="City"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="Country"></label>
+                    <input class="form-input" asp-for="Country" />
+                    <span class="field-validation-error" asp-validation-for="Country"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="PropertyType"></label>
+                    <select class="form-select" asp-for="PropertyType">
+                        @foreach (var type in Enum.GetValues<PropertyType>())
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    </select>
+                    <span class="field-validation-error" asp-validation-for="PropertyType"></span>
+                </div>
+            </div>
+
+            <h2>Capacity &amp; pricing</h2>
+            <div class="form-grid form-grid--three">
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="MaxGuests"></label>
+                    <input class="form-input" asp-for="MaxGuests" type="number" min="1" max="50" />
+                    <span class="field-validation-error" asp-validation-for="MaxGuests"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="Bedrooms"></label>
+                    <input class="form-input" asp-for="Bedrooms" type="number" min="0" max="50" />
+                    <span class="field-validation-error" asp-validation-for="Bedrooms"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="PricePerNight"></label>
+                    <input class="form-input" asp-for="PricePerNight" type="number" min="1" step="0.01" />
+                    <span class="field-validation-error" asp-validation-for="PricePerNight"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="CleaningFee"></label>
+                    <input class="form-input" asp-for="CleaningFee" type="number" min="0" step="0.01" />
+                    <span class="field-validation-error" asp-validation-for="CleaningFee"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="ServiceFee"></label>
+                    <input class="form-input" asp-for="ServiceFee" type="number" min="0" step="0.01" />
+                    <span class="field-validation-error" asp-validation-for="ServiceFee"></span>
+                </div>
+            </div>
+
+            <h2>Amenities</h2>
+            <div class="check-grid">
+                @foreach (var amenity in amenities)
+                {
+                    <label class="form-check">
+                        <input type="checkbox" name="SelectedAmenityIds" value="@amenity.Id" checked="@selectedAmenities.Contains(amenity.Id)" />
+                        <span>@amenity.Name</span>
+                    </label>
+                }
+            </div>
+
+            <h2>Photos</h2>
+            @if (Model.ExistingImages.Any())
+            {
+                <div class="photo-manage-grid">
+                    @foreach (var image in Model.ExistingImages)
+                    {
+                        <div class="photo-manage">
+                            <img src="@image.ImageUrl" alt="@Model.Title" loading="lazy" />
+                            <label class="form-check">
+                                <input type="checkbox" name="RemoveImageIds" value="@image.Id" />
+                                <span>Remove</span>
+                            </label>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="form-help">No photos yet. Add some below.</p>
+            }
+            <div class="form-group form-group--wide" style="margin:0;">
+                <label class="form-label" asp-for="NewImages">Add photos</label>
+                <div class="form-file">
+                    <input asp-for="NewImages" type="file" accept=".jpg,.jpeg,.png,.webp" multiple />
+                </div>
+                <p class="form-help">JPG, PNG and WebP; up to 5 MB each.</p>
+                <span class="field-validation-error" asp-validation-for="NewImages"></span>
+            </div>
+
+            <div class="form-actions">
+                <button class="sb-btn sb-btn--primary" type="submit">Save changes</button>
+                <a asp-action="Index" class="sb-btn sb-btn--tertiary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <style>
+        .photo-manage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+        }
+        .photo-manage {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .photo-manage img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: var(--sb-r-sm);
+        }
+    </style>
+</section>

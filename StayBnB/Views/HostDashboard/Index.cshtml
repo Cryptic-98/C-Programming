@@ -1,0 +1,29 @@
+@model HostDashboardViewModel
+@{
+    ViewData["Title"] = "Host dashboard";
+}
+<section class="container listing-page">
+    <h1>Welcome back, @Model.HostName</h1>
+    <p>Listings: @Model.ActiveListings active / @Model.TotalListings total · Pending bookings: @Model.PendingBookings · Check-ins to verify: @Model.CheckInsToVerify · Earnings: R @Model.Earnings.ToString("N2")</p>
+    <p><a asp-controller="HostProperties" asp-action="Index">Manage listings</a> · <a asp-controller="HostBookings" asp-action="Index">Booking requests</a> · <a asp-controller="HostCheckIn" asp-action="Submissions">Check-in submissions</a> · <a asp-controller="Messages" asp-action="Inbox">Messages (@Model.UnreadMessages)</a></p>
+    <h2>Your properties</h2>
+    <p><a class="sb-btn sb-btn--primary" asp-controller="HostProperties" asp-action="Create">Add property</a></p>
+    @if (Model.Properties.Count == 0) { <p>You have not added any properties yet.</p> }
+    @foreach (var property in Model.Properties)
+    {
+        <article class="booking-row">
+            <img src="@property.ImageUrl" alt="@property.Title" width="160" />
+            <div>
+                <h3>@property.Title · @property.City</h3>
+                <p>@property.PropertyType · R @property.PricePerNight.ToString("N0") per night · @(property.IsActive ? "Active" : "Inactive") · @property.BookingCount bookings</p>
+                <a asp-controller="HostProperties" asp-action="Edit" asp-route-id="@property.Id">Edit</a>
+                <a asp-controller="Properties" asp-action="Details" asp-route-id="@property.Id">View listing</a>
+            </div>
+        </article>
+    }
+    <h2>Recent bookings</h2>
+    @foreach (var booking in Model.RecentBookings)
+    {
+        <p><a asp-controller="HostBookings" asp-action="Index">@booking.PropertyTitle</a> · @booking.CheckInDate.ToString("d MMM") · @booking.Status</p>
+    }
+</section>

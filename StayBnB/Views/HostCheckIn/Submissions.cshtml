@@ -1,0 +1,83 @@
+@model IEnumerable<HostCheckInSubmissionViewModel>
+@{
+    ViewData["Title"] = "Guest check-ins";
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <h1>Guest check-in submissions</h1>
+        <p>Review uploaded documents and verify guests before arrival.</p>
+    </header>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-clipboard-check"></i></div>
+            <h2>No check-ins awaiting review</h2>
+            <p style="color:var(--sb-text-2); margin:0;">New submissions will appear here.</p>
+        </div>
+    }
+
+    <div style="display:flex; flex-direction:column; gap:16px;">
+        @foreach (var submission in Model)
+        {
+            <article class="form-card">
+                <div class="section-header">
+                    <div>
+                        <h2 style="margin:0; font-size:20px;">@submission.PropertyTitle</h2>
+                        <p style="margin:4px 0 0; color:var(--sb-text-2);">@submission.GuestName · Booking #@submission.BookingId · Submitted @submission.CreatedAt.ToString("d MMM yyyy")</p>
+                    </div>
+                    <span class="status-badge @(submission.Status == CheckInStatus.Completed ? "status-badge--approved" : submission.Status == CheckInStatus.Rejected ? "status-badge--rejected" : "status-badge--pending")">@submission.Status</span>
+                </div>
+
+                @foreach (var document in submission.Documents)
+                {
+                    <div class="document-review">
+                        <div class="section-header">
+                            <div>
+                                <strong>@document.DocumentType</strong>
+                                <p style="margin:2px 0 0; color:var(--sb-text-2); font-size:14px;">@document.OriginalFileName</p>
+                            </div>
+                            <span class="status-badge @(document.Status == DocumentStatus.Approved ? "status-badge--approved" : document.Status == DocumentStatus.Rejected ? "status-badge--rejected" : "status-badge--pending")">@document.Status</span>
+                        </div>
+                        @if (document.Status == DocumentStatus.Pending)
+                        {
+                            <div class="page-actions">
+                                <a asp-action="ViewDocument" asp-route-documentId="@document.Id" class="sb-btn sb-btn--secondary"><i class="bi bi-file-earmark-text"></i> Open document</a>
+                                <form asp-action="Verify" method="post">
+                                    <input type="hidden" name="DocumentId" value="@document.Id" />
+                                    <button class="sb-btn sb-btn--primary" type="submit" name="Approve" value="true">Approve</button>
+                                </form>
+                            </div>
+                            <form asp-action="Verify" method="post" class="reject-inline">
+                                <input type="hidden" name="DocumentId" value="@document.Id" />
+                                <input type="hidden" name="Approve" value="false" />
+                                <div class="form-group" style="margin:0; flex:1; min-width:200px;">
+                                    <label class="form-label" for="reason-@document.Id">Reason for rejection</label>
+                                    <input class="form-input" id="reason-@document.Id" name="Reason" required maxlength="500" placeholder="Explain the issue" />
+                                </div>
+                                <button class="sb-btn sb-btn--danger" type="submit">Reject document</button>
+                            </form>
+                        }
+                    </div>
+                }
+            </article>
+        }
+    </div>
+
+    <style>
+        .document-review {
+            border-top: 1px solid var(--sb-border-soft);
+            padding-top: var(--sb-4);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .reject-inline {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 12px;
+        }
+    </style>
+</section>

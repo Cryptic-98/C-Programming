@@ -1,0 +1,59 @@
+@model IEnumerable<HostPropertyListItemViewModel>
+@{
+    ViewData["Title"] = "Your listings";
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <div class="section-header">
+            <div>
+                <h1 style="margin:0;">Your listings</h1>
+                <p>Manage your properties, pricing and check-in setup.</p>
+            </div>
+            <a class="sb-btn sb-btn--primary" asp-action="Create"><i class="bi bi-plus-lg"></i> Add property</a>
+        </div>
+    </header>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-house"></i></div>
+            <h2>No listings yet</h2>
+            <p style="color:var(--sb-text-2); margin:0;">Add your first property to start receiving bookings.</p>
+            <a class="sb-btn sb-btn--primary" asp-action="Create">Add property</a>
+        </div>
+    }
+
+    <div style="display:flex; flex-direction:column; gap:16px;">
+        @foreach (var property in Model)
+        {
+            <article class="form-card" style="padding:var(--sb-5);">
+                <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-start;">
+                    @if (!string.IsNullOrWhiteSpace(property.ImageUrl))
+                    {
+                        <img src="@property.ImageUrl" alt="@property.Title" style="width:180px; height:120px; object-fit:cover; border-radius:var(--sb-r-sm);" />
+                    }
+                    <div style="flex:1; min-width:220px; display:flex; flex-direction:column; gap:6px;">
+                        <div class="section-header">
+                            <h2 style="margin:0; font-size:20px;">@property.Title</h2>
+                            <span class="status-badge @(property.IsActive ? "status-badge--active" : "status-badge--inactive")">@(property.IsActive ? "Active" : "Inactive")</span>
+                        </div>
+                        <p style="margin:0; color:var(--sb-text-2);">@property.City · @property.PropertyType · R @property.PricePerNight.ToString("N2") per night</p>
+                        <p style="margin:0; color:var(--sb-text-2);">@property.ImageCount photo@(property.ImageCount == 1 ? "" : "s") · @property.BookingCount booking@(property.BookingCount == 1 ? "" : "s") · @property.PendingBookingCount pending</p>
+                    </div>
+                </div>
+                <div class="page-actions" style="border-top:1px solid var(--sb-border-soft); padding-top:var(--sb-4);">
+                    <a asp-action="Edit" asp-route-id="@property.Id" class="sb-btn sb-btn--secondary"><i class="bi bi-pencil"></i> Edit</a>
+                    <a asp-controller="Properties" asp-action="Details" asp-route-id="@property.Id" class="sb-btn sb-btn--tertiary"><i class="bi bi-eye"></i> View</a>
+                    <a asp-controller="HostCheckIn" asp-action="Configure" asp-route-propertyId="@property.Id" class="sb-btn sb-btn--tertiary"><i class="bi bi-list-check"></i> Check-in</a>
+                    <form asp-action="ToggleActive" asp-route-id="@property.Id" method="post">
+                        <button class="sb-btn sb-btn--tertiary" type="submit">@(property.IsActive ? "Deactivate" : "Activate")</button>
+                    </form>
+                    <form asp-action="Delete" asp-route-id="@property.Id" method="post" onsubmit="return confirm('Delete this property?')">
+                        <button class="sb-btn sb-btn--danger" type="submit">Delete</button>
+                    </form>
+                </div>
+            </article>
+        }
+    </div>
+</section>
