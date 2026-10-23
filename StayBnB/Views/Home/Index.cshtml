@@ -1,0 +1,317 @@
+@model List<StayBnB.Models.ViewModels.PropertyCardViewModel>
+
+@{
+    ViewData["Title"] = "Find your next stay";
+}
+
+@section Styles {
+    <style>
+        .hero {
+            position: relative;
+            min-height: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-bottom: var(--sb-7);
+        }
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: url('/img/hero.jpg') center/cover no-repeat;
+        }
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(23,37,84,.25) 0%, rgba(23,37,84,.55) 100%);
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            color: #fff;
+            padding: var(--sb-8) var(--sb-4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--sb-4);
+        }
+        .hero h1 {
+            color: #fff;
+            font-size: clamp(32px, 6vw, 56px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+        .hero p {
+            color: rgba(255,255,255,.9);
+            font-size: clamp(16px, 2vw, 20px);
+            margin: 0;
+        }
+        .search-bar {
+            margin-top: var(--sb-5);
+            background: #fff;
+            color: var(--sb-text);
+            border-radius: var(--sb-r-pill);
+            box-shadow: var(--sb-shadow-search);
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0,1fr)) auto;
+            align-items: center;
+            overflow: hidden;
+            width: min(980px, 100%);
+        }
+        .search-field {
+            padding: 12px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: left;
+            border-right: 1px solid var(--sb-border-soft);
+        }
+        .search-field:nth-last-child(2) { border-right: none; }
+        .search-label {
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .search-value {
+            font-size: 14px;
+            color: var(--sb-text-2);
+        }
+        .search-input {
+            border: none;
+            background: transparent;
+            padding: 0;
+            width: 100%;
+            font: 400 14px/1.4 var(--sb-font);
+            color: var(--sb-text);
+            min-width: 0;
+        }
+        .search-input:focus {
+            outline: none;
+        }
+        .search-input::placeholder {
+            color: var(--sb-text-2);
+            opacity: 1;
+        }
+        .guest-stepper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+        .guest-stepper__input {
+            flex: 1;
+        }
+        .guest-stepper__input::-webkit-inner-spin-button,
+        .guest-stepper__input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .guest-stepper__input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        .guest-stepper__controls {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding-left: 8px;
+            border-left: 1px solid var(--sb-border-soft);
+        }
+        .guest-stepper__button {
+            width: 24px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            background: var(--sb-blue-50);
+            color: var(--sb-blue-600);
+            font-size: 11px;
+            line-height: 1;
+            cursor: pointer;
+            transition: background .15s ease, border-color .15s ease, color .15s ease;
+        }
+        .guest-stepper__button:hover {
+            background: var(--sb-blue-100);
+            border-color: var(--sb-blue-600);
+        }
+        .guest-stepper__button:focus-visible {
+            outline: 2px solid var(--sb-blue-600);
+            outline-offset: 1px;
+        }
+        .guest-stepper__button:active {
+            background: var(--sb-blue-600);
+            color: #fff;
+        }
+        .search-button {
+            margin: 6px 8px 6px 0;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: var(--sb-blue-600);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .section {
+            margin: 0 auto var(--sb-8);
+            width: min(1280px, 100%);
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: var(--sb-5);
+        }
+        @@media (min-width:640px){ .section { padding: 0 24px; } }
+        @@media (min-width:1024px){ .section { padding: 0 40px; } }
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: var(--sb-4);
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: var(--sb-6);
+        }
+        .promo {
+            background: linear-gradient(90deg, var(--sb-blue-50) 0%, #fff 100%);
+            border-radius: var(--sb-r-lg);
+            padding: clamp(24px, 6vw, 56px);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            align-items: center;
+            gap: var(--sb-6);
+        }
+        .promo-content { display: flex; flex-direction: column; gap: var(--sb-4); }
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--sb-3);
+        }
+        .chip {
+            padding: 8px 16px;
+            border-radius: var(--sb-r-pill);
+            border: 1px solid var(--sb-border);
+            background: #fff;
+            color: var(--sb-text);
+            text-decoration: none;
+        }
+        .chip.is-active {
+            border-color: var(--sb-blue-600);
+            background: var(--sb-blue-100);
+        }
+        @@media (max-width: 900px) {
+            .search-bar { grid-template-columns: 1fr; border-radius: var(--sb-r-lg); }
+            .search-field { border-right: none; border-bottom: 1px solid var(--sb-border-soft); }
+            .search-button { margin: 12px; width: calc(100% - 24px); border-radius: var(--sb-r-sm); }
+        }
+    </style>
+}
+
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div>
+            <h1>Find your next stay</h1>
+            <p>Discover places to stay across South Africa</p>
+        </div>
+        <form class="search-bar" asp-controller="Properties" asp-action="Index" method="get">
+            <label class="search-field">
+                <span class="search-label">Where</span>
+                <input class="search-input" type="text" name="City" placeholder="Search by city" maxlength="100" autocomplete="address-level2" />
+            </label>
+            <label class="search-field">
+                <span class="search-label">Check in</span>
+                <input class="search-input" type="date" name="CheckIn" />
+            </label>
+            <label class="search-field">
+                <span class="search-label">Check out</span>
+                <input class="search-input" type="date" name="CheckOut" />
+            </label>
+            <div class="search-field" role="group" aria-labelledby="guests-label">
+                <label class="search-label" id="guests-label" for="guests-input">Guests</label>
+                <div class="guest-stepper">
+                    <input class="search-input guest-stepper__input" id="guests-input" type="number" name="Guests" min="1" max="50" placeholder="Add guests" />
+                    <div class="guest-stepper__controls">
+                        <button type="button" class="guest-stepper__button" data-step="1" aria-label="Add a guest">
+                            <i class="bi bi-chevron-up"></i>
+                        </button>
+                        <button type="button" class="guest-stepper__button" data-step="-1" aria-label="Remove a guest">
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <button class="search-button" type="submit" aria-label="Search">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+        <div class="chip-row">
+            <a asp-controller="Properties" asp-action="Index" asp-route-city="Pretoria" class="chip">Pretoria</a>
+            <a asp-controller="Properties" asp-action="Index" asp-route-city="Cape Town" class="chip">Cape Town</a>
+            <a asp-controller="Properties" asp-action="Index" asp-route-propertyType="@PropertyType.Villa" class="chip">Beach stays</a>
+            <a asp-controller="Properties" asp-action="Index" asp-route-propertyType="@PropertyType.Cabin" class="chip">Pet-friendly</a>
+            <a asp-controller="Properties" asp-action="Index" asp-route-propertyType="@PropertyType.Villa" class="chip">Pool</a>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-header">
+        <div>
+            <h2>Explore stays in South Africa</h2>
+            <p style="color: var(--sb-text-2); margin: 0;">Hand-picked homes and stays, curated for every occasion</p>
+        </div>
+        <a asp-controller="Properties" asp-action="Index" class="sb-btn sb-btn--tertiary">View all</a>
+    </div>
+    <div class="card-grid">
+        @foreach (var item in Model)
+        {
+            @await Html.PartialAsync("_PropertyCard", item)
+        }
+    </div>
+</section>
+
+<section class="section">
+    <div class="promo">
+        <div class="promo-content">
+            <h2>Hosting? Turn your space into income</h2>
+            <p style="color: var(--sb-text-2);">Share your home with guests from around the world. We make hosting simple, safe and rewarding.</p>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <a asp-controller="HostApplication" asp-action="Create" class="sb-btn sb-btn--primary">Apply to become a Host</a>
+                <a asp-controller="Home" asp-action="Index" class="sb-btn sb-btn--secondary">Learn more</a>
+            </div>
+        </div>
+        <div>
+            <img src="/img/properties/franschhoek-guesthouse.jpg" alt="South African guesthouse" style="border-radius: var(--sb-r-lg); width:100%; height:100%; object-fit:cover;" />
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.guest-stepper').forEach(function (stepper) {
+            var input = stepper.querySelector('.guest-stepper__input');
+            var min = parseInt(input.min || '1', 10);
+            var max = parseInt(input.max || '50', 10);
+
+            stepper.querySelectorAll('[data-step]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var current = parseInt(input.value, 10);
+                    var step = parseInt(button.dataset.step, 10);
+                    var next = isNaN(current) ? min : Math.min(max, Math.max(min, current + step));
+
+                    input.value = next;
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+            });
+        });
+    </script>
+}

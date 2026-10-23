@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Staybnb</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header class="topbar">
+        <div class="container nav-shell">
+            <div class="brand-wrap">
+                <a asp-controller="Home" asp-action="Index" class="brand">Staybnb</a>
+                <a asp-controller="Home" asp-action="Index" class="nav-link nav-link--home">Home</a>
+                <a asp-controller="Properties" asp-action="Explore" class="nav-link">Explore</a>
+                <a asp-controller="Properties" asp-action="Index" class="nav-link">Stays</a>
+                <a asp-controller="Wishlist" asp-action="Index" class="nav-link">Wishlist</a>
+            </div>
+            <div class="nav-actions">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    if (User.IsInRole("Host"))
+                    {
+                        <a asp-area="" asp-controller="HostDashboard" asp-action="Index" class="nav-action">Host dashboard</a>
+                    }
+                    else if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                    {
+                        <a asp-area="" asp-controller="AdminDashboard" asp-action="Index" class="nav-action">Admin</a>
+                    }
+                    else if (User.IsInRole("Guest"))
+                    {
+                        <a asp-area="" asp-controller="HostApplication" asp-action="Create" class="nav-action">Become a Host</a>
+                    }
+
+                    <a asp-controller="Messages" asp-action="Inbox" class="nav-action"><i class="bi bi-chat"></i> Messages</a>
+                    <a asp-controller="Notifications" asp-action="Index" class="nav-action"><i class="bi bi-bell"></i> Notifications</a>
+                    <div class="profile-pill">
+                        <a asp-controller="Bookings" asp-action="Index" class="nav-action"><i class="bi bi-suitcase-lg"></i> Trips</a>
+                        <a asp-controller="Account" asp-action="Profile" class="nav-action"><i class="bi bi-person-circle"></i> Profile</a>
+                        <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="sb-btn sb-btn--tertiary" style="height:auto; padding:0;">Log out</button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="nav-action">Log in</a>
+                    <a asp-controller="Account" asp-action="Register" class="sb-btn sb-btn--primary" style="height:40px;">Sign up</a>
+                }
+            </div>
+        </div>
+    </header>
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <a asp-controller="Home" asp-action="Index" class="brand brand--footer">Staybnb</a>
+                    <p>Find beautiful stays across South Africa. Blue skies, warm welcomes.</p>
+                </div>
+                <div>
+                    <h4>Stays</h4>
+                    <ul>
+                        <li><a asp-controller="Properties" asp-action="Index" asp-route-city="Pretoria">Pretoria</a></li>
+                        <li><a asp-controller="Properties" asp-action="Index" asp-route-city="Cape Town">Cape Town</a></li>
+                        <li><a asp-controller="Properties" asp-action="Index" asp-route-city="Johannesburg">Johannesburg</a></li>
+                        <li><a asp-controller="Properties" asp-action="Index" asp-route-city="Durban">Durban</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Hosting</h4>
+                    <ul>
+                        <li><a asp-controller="HostApplication" asp-action="Create">Become a Host</a></li>
+                        <li><a asp-controller="HostDashboard" asp-action="Index">Host dashboard</a></li>
+                        <li><a asp-controller="HostProperties" asp-action="Index">Your listings</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a asp-controller="Home" asp-action="Index">Help centre</a></li>
+                        <li><a asp-controller="Account" asp-action="AccessDenied">Access</a></li>
+                        <li><a asp-controller="Notifications" asp-action="Index">Notifications</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms &amp; Conditions</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-legal">
+                <div>© @DateTime.Now.Year Staybnb. All rights reserved.</div>
+                <div>South Africa · ZAR</div>
+            </div>
+        </div>
+    </footer>
+
+    <nav class="bottom-tabs" aria-label="Mobile navigation">
+        <a asp-controller="Properties" asp-action="Explore" class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Explore" ? "active" : "")">
+            <i class="bi bi-search"></i>
+            <span>Explore</span>
+        </a>
+        <a asp-controller="Wishlist" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Wishlist" ? "active" : "")">
+            <i class="bi bi-heart"></i>
+            <span>Wishlist</span>
+        </a>
+        <a asp-controller="Bookings" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Bookings" ? "active" : "")">
+            <i class="bi bi-suitcase-lg"></i>
+            <span>Trips</span>
+        </a>
+        <a asp-controller="Messages" asp-action="Inbox" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Messages" ? "active" : "")">
+            <i class="bi bi-chat"></i>
+            <span>Inbox</span>
+        </a>
+        <a asp-controller="Account" asp-action="Profile" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Account" ? "active" : "")">
+            <i class="bi bi-person"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    @if (TempData["Toast"] is string toast)
+    {
+        <div class="toast-container">
+            <div class="toast">@toast</div>
+        </div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="toast-container" style="bottom: calc(130px + env(safe-area-inset-bottom, 0));">
+            <div class="toast" style="background: var(--sb-danger);">@error</div>
+        </div>
+    }
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation/jquery.validate.unobtrusive.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,11 @@
+@{
+    ViewData["Title"] = "Page not found";
+    var code = ViewBag.StatusCode ?? 404;
+}
+
+<div class="container" style="padding-top:64px; padding-bottom:64px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:16px;">
+    <div style="font-size:80px;font-weight:700;letter-spacing:-0.02em;">@code</div>
+    <h1>We can't seem to find that page</h1>
+    <p style="color:var(--sb-text-2);">The page you're looking for doesn't exist or has been moved.</p>
+    <a asp-controller="Home" asp-action="Index" class="sb-btn sb-btn--primary">Back to home</a>
+</div>
