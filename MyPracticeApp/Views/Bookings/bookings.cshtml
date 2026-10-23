@@ -1,0 +1,27 @@
+@* TODO: Specify the model type for this view *@
+@model IEnumerable<MyPracticeApp.Models.Bookings>
+
+<h2>All Bookings</h2>
+
+<table class = "table table-bordered">
+    <thead>
+        <tr>
+            <th>Booking Reference</th>
+            <th>Passenger</th>
+            <th>Flight</th>
+            <th>Booking Date</th> 
+        </tr>
+    </thead>
+    <tbody>
+        @* TODO: Loop through the model and display each booking's details. *@
+        @foreach (var bookings in Model)
+        {
+            <tr>
+                <td>@bookings.BookingReference</td>
+                <td>@bookings.PassengerName</td>
+                <td>@bookings.FlightNumber</td>
+                <td>@bookings.BookingDate</td>
+            </tr>
+        }
+    </tbody>
+</table> 

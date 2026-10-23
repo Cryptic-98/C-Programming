@@ -95,3 +95,5 @@
 /home/goabaone-diala/repos/C-Programming/MyPracticeApp/obj/Debug/net10.0/MyPracticeApp.pdb
 /home/goabaone-diala/repos/C-Programming/MyPracticeApp/obj/Debug/net10.0/MyPracticeApp.genruntimeconfig.cache
 /home/goabaone-diala/repos/C-Programming/MyPracticeApp/obj/Debug/net10.0/ref/MyPracticeApp.dll
+/home/goabaone-diala/repos/C-Programming/MyPracticeApp/obj/Debug/net10.0/MyPracticeApp.csproj.AssemblyReference.cache
+/home/goabaone-diala/repos/C-Programming/MyPracticeApp/obj/Debug/net10.0/MyPracticeApp.sourcelink.json

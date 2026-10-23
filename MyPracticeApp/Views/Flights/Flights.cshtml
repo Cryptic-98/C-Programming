@@ -1,0 +1,27 @@
+@* TODO: Specify the model type for this view *@
+@model IEnumerabole<MyPracticeApp.Models.Flights>
+
+<h2>All Flights</h2>
+
+<table class = "table table-bordered">
+    <thead>
+        <tr>
+            <th>Flight Number</th>
+            <th>Origin</th>
+            <th>Destination</th>
+            <th>Departure Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        @* TODO: Loop through the model and display each flight's details. *@
+        @foreach (var flights in Model)
+        {
+            <tr>
+                <td>@flights.FlightNumber</td>
+                <td>@flights.Origin</td>
+                <td>@flights.Destination</td>
+                <td>@flights.DepartureTime</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,25 @@
+@* TODO: Specify the model type for this view *@
+@model IEnumerable<MyPracticeApp.Models.Passengers>
+
+<h2>All Passengers</h2>
+
+<table class = "table table-bordered">
+    <thead>
+        <tr>
+            <th>Passenger Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+        </tr>
+    </thead>
+    <tbody>
+        @* TODO: Loop through the model and display each passenger's details. *@
+        @foreach (var passengers in Model)
+        {
+            <tr>
+                <td>@passengers.Name</td>
+                <td>@passengers.Email</td>
+                <td>@passengers.Phone</td>
+            </tr>
+        }
+    </tbody>
+</table>
