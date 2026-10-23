@@ -4,10 +4,6 @@ using Microsoft.AspNetCore.Identity;
 
 namespace StayBnB.Models.Entities;
 
-/// <summary>
-/// ASP.NET Core Identity user extended with the StayBnB profile fields.
-/// Matches the <c>AspNetUsers</c> table in <c>database.sql</c>.
-/// </summary>
 public class ApplicationUser : IdentityUser
 {
     [Required, StringLength(50, MinimumLength = 2)]
