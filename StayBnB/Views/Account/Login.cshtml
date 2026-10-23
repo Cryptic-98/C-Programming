@@ -1,0 +1,69 @@
+@model StayBnB.Models.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Log in</h1>
+            <p>Welcome back to Staybnb</p>
+        </div>
+        <form asp-action="Login" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ReturnUrl" />
+            <div class="form-group">
+                <label class="form-label" asp-for="Email"></label>
+                <input class="form-input" asp-for="Email" placeholder="you@example.com" />
+                <span class="field-validation-error" asp-validation-for="Email"></span>
+            </div>
+            <div class="form-group">
+                <label class="form-label" asp-for="Password"></label>
+                <input class="form-input" asp-for="Password" />
+                <span class="field-validation-error" asp-validation-for="Password"></span>
+            </div>
+            <label class="form-check" style="margin-bottom:18px;">
+                <input asp-for="RememberMe" />
+                <span>Remember me</span>
+            </label>
+            <div asp-validation-summary="ModelOnly" class="field-validation-error" style="margin-bottom:12px;"></div>
+            <button type="submit" class="sb-btn sb-btn--primary" style="width:100%;">Log in</button>
+        </form>
+        <div class="auth-footer">
+            <span>Don't have an account?</span>
+            <a asp-action="Register">Sign up</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-wrap {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--sb-6) var(--sb-4);
+        background: linear-gradient(180deg, #fff 0%, var(--sb-bg-alt) 100%);
+    }
+    .auth-card {
+        width: min(460px, 100%);
+        background: #fff;
+        border: 1px solid var(--sb-border-soft);
+        border-radius: var(--sb-r-lg);
+        box-shadow: var(--sb-shadow-card-up);
+        padding: clamp(24px, 6vw, 40px);
+        display: flex;
+        flex-direction: column;
+        gap: var(--sb-5);
+    }
+    .auth-header h1 { margin: 0 0 6px; }
+    .auth-header p { margin: 0; color: var(--sb-text-2); }
+    .auth-footer {
+        text-align: center;
+        color: var(--sb-text-2);
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+</style>

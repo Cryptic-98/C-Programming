@@ -1,0 +1,64 @@
+@model StayBnB.Models.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Your profile";
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <h1>Account</h1>
+        <p>Manage your personal details</p>
+    </header>
+
+    <div class="form-layout">
+        <aside class="content-card" style="display:flex; flex-direction:column; gap:16px; text-align:center;">
+            <div style="width:96px;height:96px;border-radius:50%;margin:0 auto;background:var(--sb-blue-50);display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--sb-blue-600);">
+                <i class="bi bi-person"></i>
+            </div>
+            <div>
+                <h2 style="margin:0;">@Model.FirstName @Model.LastName</h2>
+                <p style="margin:4px 0 0; color:var(--sb-text-2);">@Model.Email</p>
+            </div>
+            <div class="status-badge status-badge--@(Model.Role == "Host" ? "active" : Model.Role == "Admin" || Model.Role == "SuperAdmin" ? "checkedin" : "pending")" style="align-self:center;">
+                <i class="bi bi-shield-check"></i>
+                @Model.Role
+            </div>
+            <p style="margin:0; color:var(--sb-text-2); font-size:14px;">Member since @Model.CreatedAt.ToString("MMMM yyyy")</p>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <a asp-controller="Bookings" asp-action="Index" class="sb-btn sb-btn--secondary">My trips</a>
+                <a asp-controller="Wishlist" asp-action="Index" class="sb-btn sb-btn--secondary">Wishlist</a>
+                <a asp-controller="Messages" asp-action="Inbox" class="sb-btn sb-btn--secondary">Messages</a>
+            </div>
+        </aside>
+
+        <form asp-action="Profile" method="post" class="form-card">
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+            <h2>Personal information</h2>
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="Email" />
+            <input type="hidden" asp-for="Role" />
+            <input type="hidden" asp-for="CreatedAt" />
+            <div class="form-grid">
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="FirstName"></label>
+                    <input class="form-input" asp-for="FirstName" />
+                    <span class="field-validation-error" asp-validation-for="FirstName"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="LastName"></label>
+                    <input class="form-input" asp-for="LastName" />
+                    <span class="field-validation-error" asp-validation-for="LastName"></span>
+                </div>
+                <div class="form-group form-group--wide" style="margin:0;">
+                    <label class="form-label" asp-for="ProfilePictureUrl"></label>
+                    <input class="form-input" asp-for="ProfilePictureUrl" placeholder="https://..." />
+                    <span class="field-validation-error" asp-validation-for="ProfilePictureUrl"></span>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="sb-btn sb-btn--primary">Save changes</button>
+            </div>
+        </form>
+    </div>
+</section>
