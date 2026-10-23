@@ -1,0 +1,141 @@
+@model StayBnB.Models.ViewModels.PropertyFilterViewModel
+
+@{
+    ViewData["Title"] = "Stays";
+    var types = Enum.GetValues<StayBnB.Models.Enums.PropertyType>();
+    var hasFilters = !string.IsNullOrWhiteSpace(Model.City) || Model.MinPrice.HasValue || Model.MaxPrice.HasValue
+        || Model.Guests.HasValue || Model.CheckIn.HasValue || Model.CheckOut.HasValue;
+}
+
+<div class="container listing-page">
+    <header class="page-header">
+        <div class="section-header">
+            <div>
+                <h1 style="margin:0;">Stays</h1>
+                <p>@Model.TotalResults stay@(Model.TotalResults == 1 ? "" : "s") available@(Model.CheckIn.HasValue && Model.CheckOut.HasValue ? $" for {Model.CheckIn.Value:dd MMM} – {Model.CheckOut.Value:dd MMM yyyy}" : " in South Africa")</p>
+            </div>
+            <div class="page-actions">
+                <a asp-action="Explore" class="sb-btn sb-btn--tertiary">Browse by city</a>
+                <button class="sb-btn sb-btn--secondary" type="button" onclick="document.getElementById('filterModal').showModal()"><i class="bi bi-sliders"></i> Filters</button>
+            </div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            @foreach (var type in types)
+            {
+                <a asp-action="Index" asp-route-propertyType="@type" asp-route-city="@Model.City" asp-route-checkIn="@Model.CheckIn?.ToString("yyyy-MM-dd")" asp-route-checkOut="@Model.CheckOut?.ToString("yyyy-MM-dd")" asp-route-guests="@Model.Guests" class="filter-pill @(Model.PropertyType == type ? "is-active" : "")">@type</a>
+            }
+        </div>
+        @if (hasFilters)
+        {
+            <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+                @if (!string.IsNullOrWhiteSpace(Model.City))
+                {
+                    <span class="chip">@Model.City <a asp-action="Index" asp-route-propertyType="@Model.PropertyType" asp-route-checkIn="@Model.CheckIn?.ToString("yyyy-MM-dd")" asp-route-checkOut="@Model.CheckOut?.ToString("yyyy-MM-dd")" asp-route-guests="@Model.Guests" style="margin-left:6px;">×</a></span>
+                }
+                @if (Model.CheckIn.HasValue && Model.CheckOut.HasValue)
+                {
+                    <span class="chip">@Model.CheckIn.Value.ToString("dd MMM") – @Model.CheckOut.Value.ToString("dd MMM") <a asp-action="Index" asp-route-city="@Model.City" asp-route-propertyType="@Model.PropertyType" asp-route-guests="@Model.Guests" style="margin-left:6px;">×</a></span>
+                }
+                @if (Model.Guests.HasValue)
+                {
+                    <span class="chip">@Model.Guests guest@(Model.Guests == 1 ? "" : "s") <a asp-action="Index" asp-route-city="@Model.City" asp-route-propertyType="@Model.PropertyType" asp-route-checkIn="@Model.CheckIn?.ToString("yyyy-MM-dd")" asp-route-checkOut="@Model.CheckOut?.ToString("yyyy-MM-dd")" style="margin-left:6px;">×</a></span>
+                }
+                @if (Model.MinPrice.HasValue || Model.MaxPrice.HasValue)
+                {
+                    <span class="chip">R @(Model.MinPrice?.ToString("N0") ?? "0") – @(Model.MaxPrice?.ToString("N0") ?? "any") <a asp-action="Index" asp-route-city="@Model.City" asp-route-propertyType="@Model.PropertyType" asp-route-guests="@Model.Guests" asp-route-checkIn="@Model.CheckIn?.ToString("yyyy-MM-dd")" asp-route-checkOut="@Model.CheckOut?.ToString("yyyy-MM-dd")" style="margin-left:6px;">×</a></span>
+                }
+                <a asp-action="Index" class="sb-btn sb-btn--tertiary">Clear all</a>
+            </div>
+        }
+    </header>
+    @if (Model.Results.Any())
+    {
+        <div class="card-grid">
+            @foreach (var item in Model.Results)
+            {
+                @await Html.PartialAsync("_PropertyCard", item)
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-search"></i></div>
+            <h2>No stays match your filters</h2>
+            <p style="color:var(--sb-text-2); margin:0;">Try adjusting your filters or clearing them to see more places.</p>
+            <a asp-action="Index" class="sb-btn sb-btn--primary">Clear filters</a>
+        </div>
+    }
+</div>
+
+<dialog id="filterModal" style="border:none; border-radius:var(--sb-r-lg); padding:0; max-width:560px; width:calc(100% - 24px); box-shadow:var(--sb-shadow-modal);">
+    <form asp-action="Index" method="get" style="display:flex; flex-direction:column;">
+        <header style="display:flex; align-items:center; justify-content:space-between; padding:18px 24px; border-bottom:1px solid var(--sb-border-soft);">
+            <strong>Filters</strong>
+            <button type="button" onclick="document.getElementById('filterModal').close()" class="sb-btn sb-btn--tertiary"><i class="bi bi-x-lg"></i></button>
+        </header>
+        <div style="padding:24px; display:flex; flex-direction:column; gap:20px;">
+            <div class="form-group" style="margin:0;">
+                <label class="form-label" asp-for="City"></label>
+                <input class="form-input" asp-for="City" placeholder="Pretoria, Cape Town, Durban..." />
+            </div>
+            <div class="form-grid">
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="CheckIn"></label>
+                    <input class="form-input" asp-for="CheckIn" type="date" />
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="CheckOut"></label>
+                    <input class="form-input" asp-for="CheckOut" type="date" />
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="MinPrice"></label>
+                    <input class="form-input" asp-for="MinPrice" placeholder="R500" type="number" min="0" />
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="MaxPrice"></label>
+                    <input class="form-input" asp-for="MaxPrice" placeholder="R5000" type="number" min="0" />
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="Guests"></label>
+                    <input class="form-input" asp-for="Guests" type="number" min="1" max="50" />
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="PropertyType"></label>
+                    <select class="form-select" asp-for="PropertyType" asp-items="Html.GetEnumSelectList<StayBnB.Models.Enums.PropertyType>()">
+                        <option value="">Any type</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <footer style="display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-top:1px solid var(--sb-border-soft);">
+            <a asp-action="Index" class="sb-btn sb-btn--tertiary">Clear all</a>
+            <button type="submit" class="sb-btn sb-btn--primary">Show stays</button>
+        </footer>
+    </form>
+</dialog>
+
+<style>
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: var(--sb-6);
+    }
+    .filter-pill {
+        padding: 8px 16px;
+        border-radius: var(--sb-r-pill);
+        border: 1px solid var(--sb-border);
+        color: var(--sb-text);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .filter-pill.is-active {
+        border-color: var(--sb-blue-600);
+        background: var(--sb-blue-100);
+        color: var(--sb-blue-700);
+    }
+</style>

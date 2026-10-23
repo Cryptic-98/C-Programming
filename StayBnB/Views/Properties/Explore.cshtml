@@ -1,0 +1,230 @@
+@model StayBnB.Models.ViewModels.ExploreViewModel
+
+@{
+    ViewData["Title"] = "Explore";
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <h1>Explore Staybnb</h1>
+        <p>@Model.TotalStays places across @Model.TotalCities cities in South Africa. Browse by city or type, or jump straight into the best-reviewed stays.</p>
+    </header>
+
+    @if (Model.Cities.Any())
+    {
+        <section style="display:flex; flex-direction:column; gap:16px;">
+            <div class="section-header">
+                <h2 style="margin:0;">Browse by city</h2>
+                <a asp-action="Index">See all stays</a>
+            </div>
+            <div class="explore-city-grid">
+                @foreach (var city in Model.Cities)
+                {
+                    <a asp-action="Index" asp-route-city="@city.City" class="explore-city">
+                        <div class="explore-city__media">
+                            @if (!string.IsNullOrWhiteSpace(city.ImageUrl))
+                            {
+                                <img src="@city.ImageUrl" alt="@city.City" loading="lazy" />
+                            }
+                            else
+                            {
+                                <div class="explore-city__placeholder"><i class="bi bi-geo-alt"></i></div>
+                            }
+                        </div>
+                        <div class="explore-city__body">
+                            <div>
+                                <strong>@city.City</strong>
+                                <span>@city.Country</span>
+                            </div>
+                            <div class="explore-city__meta">
+                                <span>@city.Count stay@(city.Count == 1 ? "" : "s")</span>
+                                <span>from R @city.FromPrice.ToString("N0")</span>
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+        </section>
+    }
+
+    @if (Model.Types.Any())
+    {
+        <section style="display:flex; flex-direction:column; gap:16px;">
+            <div class="section-header">
+                <h2 style="margin:0;">Browse by type of place</h2>
+            </div>
+            <div class="explore-type-grid">
+                @foreach (var type in Model.Types)
+                {
+                    <a asp-action="Index" asp-route-propertyType="@type.PropertyType" class="explore-type">
+                        @if (!string.IsNullOrWhiteSpace(type.ImageUrl))
+                        {
+                            <img src="@type.ImageUrl" alt="@type.PropertyType" loading="lazy" />
+                        }
+                        <span>@type.PropertyType</span>
+                        <small>@type.Count stay@(type.Count == 1 ? "" : "s")</small>
+                    </a>
+                }
+            </div>
+        </section>
+    }
+
+    @if (Model.TopRated.Any())
+    {
+        <section style="display:flex; flex-direction:column; gap:16px;">
+            <div class="section-header">
+                <h2 style="margin:0;">Top rated stays</h2>
+                <a asp-action="Index">View more</a>
+            </div>
+            <div class="card-grid">
+                @foreach (var item in Model.TopRated)
+                {
+                    @await Html.PartialAsync("_PropertyCard", item)
+                }
+            </div>
+        </section>
+    }
+
+    @if (Model.Newest.Any())
+    {
+        <section style="display:flex; flex-direction:column; gap:16px;">
+            <div class="section-header">
+                <h2 style="margin:0;">Newly listed</h2>
+                <a asp-action="Index">View more</a>
+            </div>
+            <div class="card-grid">
+                @foreach (var item in Model.Newest)
+                {
+                    @await Html.PartialAsync("_PropertyCard", item)
+                }
+            </div>
+        </section>
+    }
+
+    <div class="explore-cta">
+        <div>
+            <h2 style="margin:0 0 6px;">Ready to narrow it down?</h2>
+            <p style="margin:0; color:var(--sb-text-2);">Use filters for dates, guests, price and amenities on the Stays page.</p>
+        </div>
+        <a asp-action="Index" class="sb-btn sb-btn--primary">Search stays</a>
+    </div>
+
+    <style>
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: var(--sb-6);
+        }
+
+        .explore-city-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: var(--sb-5);
+        }
+
+        .explore-city {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--sb-border-soft);
+            border-radius: var(--sb-r-md);
+            overflow: hidden;
+            background: #fff;
+            color: var(--sb-text);
+            text-decoration: none;
+            transition: box-shadow .15s ease, transform .15s ease;
+        }
+
+        .explore-city:hover {
+            text-decoration: none;
+            color: var(--sb-text);
+            box-shadow: var(--sb-shadow-search);
+            transform: translateY(-2px);
+        }
+
+        .explore-city__media {
+            height: 140px;
+            background: var(--sb-bg-alt);
+        }
+
+        .explore-city__media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .explore-city__placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: var(--sb-blue-600);
+            background: var(--sb-blue-50);
+        }
+
+        .explore-city__body {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+        }
+
+        .explore-city__body strong { display: block; }
+        .explore-city__body span { color: var(--sb-text-2); font-size: 14px; }
+
+        .explore-city__meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+            font-size: 13px;
+            color: var(--sb-text-2);
+            text-align: right;
+        }
+
+        .explore-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--sb-4);
+        }
+
+        .explore-type {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 14px 16px;
+            border: 1px solid var(--sb-border-soft);
+            border-radius: var(--sb-r-md);
+            background: #fff;
+            color: var(--sb-text);
+            text-decoration: none;
+        }
+
+        .explore-type:hover {
+            text-decoration: none;
+            color: var(--sb-text);
+            border-color: var(--sb-blue-600);
+        }
+
+        .explore-type img {
+            display: none;
+        }
+
+        .explore-type span { font-weight: 600; }
+        .explore-type small { color: var(--sb-text-2); }
+
+        .explore-cta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: var(--sb-6);
+            border-radius: var(--sb-r-md);
+            background: var(--sb-blue-50);
+        }
+    </style>
+</section>

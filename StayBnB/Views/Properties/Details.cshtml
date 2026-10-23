@@ -1,0 +1,111 @@
+@model PropertyDetailsViewModel
+@{
+    ViewData["Title"] = Model.Property.Title;
+}
+
+<section class="container listing-page">
+    <p><a asp-action="Index">Explore stays</a> / @Model.Property.City</p>
+    <h1>@Model.Property.Title</h1>
+    <p>@Model.Property.City, @Model.Property.Country · @Model.Property.PropertyType · @Model.Property.MaxGuests guests</p>
+
+    <div class="property-gallery">
+        @foreach (var image in Model.Property.Images)
+        {
+            <img src="@image.ImageUrl" alt="@Model.Property.Title" loading="lazy" />
+        }
+    </div>
+
+    <div class="details-grid">
+        <section>
+            <h2>Hosted by @Model.Property.HostName</h2>
+            <p>@Model.Property.Bedrooms bedrooms · @Model.Property.MaxGuests guests</p>
+            <p>@Model.Property.Description</p>
+            <h2>What this place offers</h2>
+            @if (Model.Property.Amenities.Count > 0)
+            {
+                <ul>
+                    @foreach (var amenity in Model.Property.Amenities)
+                    {
+                        <li>@amenity.Name</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>No amenities have been listed yet.</p>
+            }
+
+            <h2>Location</h2>
+            <p>@Model.Property.Address, @Model.Property.City, @Model.Property.Country</p>
+            @if (Model.Property.CheckIn is not null)
+            {
+                <h2>@Model.Property.CheckIn.Title</h2>
+                <ol>
+                    @foreach (var step in Model.Property.CheckIn.Steps)
+                    {
+                        <li><strong>@step.Title</strong> — @step.Instructions</li>
+                    }
+                </ol>
+            }
+
+            <h2>Reviews (@Model.Property.ReviewCount) · ★ @Model.Property.AverageRating.ToString("0.00")</h2>
+            @foreach (var review in Model.Property.Reviews)
+            {
+                <article>
+                    <h3>@review.ReviewerName · ★ @review.Rating</h3>
+                    <p>@review.Comment</p>
+                    <small>@review.CreatedAt.ToString("d MMMM yyyy")</small>
+                </article>
+            }
+            @if (Model.CanReview)
+            {
+                <a class="text-link" asp-controller="Reviews" asp-action="Create" asp-route-propertyId="@Model.Property.Id">Write a review</a>
+            }
+        </section>
+
+        <aside>
+            <h2>R @Model.Property.PricePerNight.ToString("N0") <small>per night</small></h2>
+            @if (User.IsInRole("Guest") && !Model.IsOwner && Model.Property.IsActive)
+            {
+                <form asp-controller="Bookings" asp-action="Create" method="get" class="booking-widget">
+                    <input type="hidden" name="propertyId" value="@Model.Property.Id" />
+                    <div class="form-group">
+                        <label class="form-label" for="checkIn">Check in</label>
+                        <input class="form-input" id="checkIn" name="checkIn" type="date" value="@Model.Booking.CheckInDate?.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="checkOut">Check out</label>
+                        <input class="form-input" id="checkOut" name="checkOut" type="date" value="@Model.Booking.CheckOutDate?.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="guests">Guests</label>
+                        <input class="form-input" id="guests" name="guests" type="number" min="1" max="@Model.Property.MaxGuests" value="@Model.Booking.NumberOfGuests" required />
+                    </div>
+                    <button class="sb-btn sb-btn--primary" type="submit" style="width:100%;">Reserve</button>
+                </form>
+            }
+            else if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                <a class="sb-btn sb-btn--primary" asp-controller="Account" asp-action="Login">Log in to book</a>
+            }
+            @if (User.Identity?.IsAuthenticated == true && !Model.IsOwner)
+            {
+                <a asp-controller="Messages" asp-action="Compose" asp-route-receiverId="@Model.Property.HostId" asp-route-propertyId="@Model.Property.Id">Message host</a>
+            }
+            <p>Cleaning fee: R @Model.Property.CleaningFee.ToString("N2")</p>
+            <p>Service fee: R @Model.Property.ServiceFee.ToString("N2")</p>
+            <p>The total is calculated by the server after you select your dates.</p>
+        </aside>
+    </div>
+
+    @if (Model.Similar.Count > 0)
+    {
+        <h2>Similar stays in @Model.Property.City</h2>
+        <div class="property-grid">
+            @foreach (var item in Model.Similar)
+            {
+                <partial name="_PropertyCard" model="item" />
+            }
+        </div>
+    }
+</section>
