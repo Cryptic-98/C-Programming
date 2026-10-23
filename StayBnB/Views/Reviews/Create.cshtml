@@ -1,0 +1,54 @@
+@model ReviewViewModel
+@{
+    ViewData["Title"] = "Write a review";
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <h1>Share your experience</h1>
+        <p>Your review helps other guests choose the right stay.</p>
+    </header>
+
+    <div class="form-layout">
+        <aside class="content-card" style="display:flex; flex-direction:column; gap:16px;">
+            <div style="width:72px;height:72px;border-radius:50%;background:var(--sb-blue-50);display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--sb-blue-600);">
+                <i class="bi bi-star"></i>
+            </div>
+            <div>
+                <h2 style="margin:0 0 8px; font-size:20px;">Be honest and kind</h2>
+                <p style="margin:0; color:var(--sb-text-2);">Reviews are public. Focus on the space, the location and your host.</p>
+            </div>
+            <a asp-controller="Bookings" asp-action="Index" class="sb-btn sb-btn--tertiary"><i class="bi bi-arrow-left"></i> My trips</a>
+        </aside>
+
+        <form asp-action="Create" method="post" class="form-card">
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+            <input asp-for="PropertyId" type="hidden" />
+
+            <h2>Your review</h2>
+            <div class="form-grid">
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="Rating"></label>
+                    <select class="form-select" asp-for="Rating">
+                        <option value="">Choose a rating</option>
+                        @for (var rating = 1; rating <= 5; rating++)
+                        {
+                            <option value="@rating">@rating star@(rating == 1 ? "" : "s")</option>
+                        }
+                    </select>
+                    <span class="field-validation-error" asp-validation-for="Rating"></span>
+                </div>
+                <div class="form-group form-group--wide" style="margin:0;">
+                    <label class="form-label" asp-for="Comment"></label>
+                    <textarea class="form-textarea" asp-for="Comment" rows="6" maxlength="1000" placeholder="What stood out about your stay?"></textarea>
+                    <span class="field-validation-error" asp-validation-for="Comment"></span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="sb-btn sb-btn--primary" type="submit">Submit review</button>
+                <a asp-controller="Bookings" asp-action="Index" class="sb-btn sb-btn--tertiary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>

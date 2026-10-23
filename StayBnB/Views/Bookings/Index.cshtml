@@ -1,0 +1,59 @@
+@{
+    ViewData["Title"] = "Your trips";
+    var upcoming = ViewBag.Upcoming as List<BookingListItemViewModel> ?? new();
+    var past = ViewBag.Past as List<BookingListItemViewModel> ?? new();
+    var saved = ViewBag.WishlistPreview as List<PropertyCardViewModel> ?? new();
+    var explore = ViewBag.Explore as List<PropertyCardViewModel> ?? new();
+}
+<section class="container listing-page">
+    <h1>Your trips</h1>
+    <h2>Upcoming stays</h2>
+    @if (upcoming.Count == 0)
+    {
+        <p>No upcoming trips yet. Find a stay for your next getaway.</p>
+        <a class="sb-btn sb-btn--primary" asp-controller="Properties" asp-action="Index">Explore stays</a>
+    }
+    @foreach (var booking in upcoming)
+    {
+        <article class="booking-row">
+            <img src="@booking.PropertyImageUrl" alt="@booking.PropertyTitle" width="180" />
+            <div>
+                <h3><a asp-action="Details" asp-route-id="@booking.Id">@booking.PropertyTitle</a></h3>
+                <p>@booking.PropertyCity · @booking.CheckInDate.ToString("d MMM") – @booking.CheckOutDate.ToString("d MMM yyyy")</p>
+                <p>@booking.NumberOfGuests guests · R @booking.TotalPrice.ToString("N2") · @booking.Status</p>
+                @if (booking.Status is BookingStatus.Pending or BookingStatus.Approved)
+                {
+                    <form asp-action="Cancel" asp-route-id="@booking.Id" method="post">
+                        <button class="sb-btn" type="submit">Cancel booking</button>
+                    </form>
+                }
+                @if (booking.Status == BookingStatus.Approved)
+                {
+                    <a asp-controller="GuestCheckIn" asp-action="Start" asp-route-bookingId="@booking.Id">Start check-in</a>
+                }
+            </div>
+        </article>
+    }
+    <h2>Past stays</h2>
+    @foreach (var booking in past)
+    {
+        <article class="booking-row">
+            <h3><a asp-action="Details" asp-route-id="@booking.Id">@booking.PropertyTitle</a></h3>
+            <p>@booking.CheckInDate.ToString("d MMM yyyy") · @booking.Status</p>
+            @if (booking.Status is BookingStatus.CheckedIn or BookingStatus.Completed)
+            {
+                <a asp-controller="Reviews" asp-action="Create" asp-route-propertyId="@booking.PropertyId">Write a review</a>
+            }
+        </article>
+    }
+    @if (saved.Count > 0)
+    {
+        <h2>Saved stays</h2>
+        <div class="property-grid">@foreach (var item in saved) { <partial name="_PropertyCard" model="item" /> }</div>
+    }
+    @if (explore.Count > 0)
+    {
+        <h2>Explore more stays</h2>
+        <div class="property-grid">@foreach (var item in explore) { <partial name="_PropertyCard" model="item" /> }</div>
+    }
+</section>

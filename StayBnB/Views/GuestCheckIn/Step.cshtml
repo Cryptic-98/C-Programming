@@ -1,0 +1,128 @@
+@model GuestCheckInViewModel
+@{
+    ViewData["Title"] = "Guest check-in";
+    var step = Model.Steps.FirstOrDefault(s => s.Order == Model.CurrentStep);
+    var progress = Model.TotalSteps > 0 ? (int)Math.Round((Model.CurrentStep - 1) * 100.0 / Model.TotalSteps) : 0;
+    progress = Math.Clamp(progress, 0, 100);
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <h1>@Model.CheckInTitle</h1>
+        <p>@Model.PropertyTitle · @Model.PropertyAddress</p>
+    </header>
+
+    <div class="form-layout">
+        <aside class="content-card" style="display:flex; flex-direction:column; gap:16px;">
+            <div style="width:72px;height:72px;border-radius:50%;background:var(--sb-blue-50);display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--sb-blue-600);">
+                <i class="bi bi-key"></i>
+            </div>
+            <div>
+                <h2 style="margin:0 0 6px; font-size:20px;">Step @Model.CurrentStep of @Model.TotalSteps</h2>
+                <p style="margin:0; color:var(--sb-text-2);">Status: @Model.Status</p>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" style="width:@(progress)%;"></div>
+            </div>
+            <a asp-controller="Bookings" asp-action="Index" class="sb-btn sb-btn--tertiary"><i class="bi bi-arrow-left"></i> My trips</a>
+        </aside>
+
+        <div class="form-card">
+            @if (step is not null)
+            {
+                <h2 style="margin:0;">@step.Title</h2>
+                @if (!string.IsNullOrWhiteSpace(step.Instructions))
+                {
+                    <p class="form-help" style="font-size:15px;">@step.Instructions</p>
+                }
+
+                @if (step.Type == "Document")
+                {
+                    <form asp-action="UploadDocument" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="GuestCheckInId" value="@Model.GuestCheckInId" />
+                        <input type="hidden" name="DocumentType" value="@step.DocumentType" />
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label" for="document-file">Upload @step.DocumentType</label>
+                            <div class="form-file">
+                                <input id="document-file" name="File" type="file" accept=".jpg,.jpeg,.png,.pdf" required />
+                            </div>
+                            <p class="form-help">JPG, PNG or PDF up to 5 MB.</p>
+                            @Html.ValidationMessage("File", new { @class = "field-validation-error" })
+                        </div>
+                        <div class="form-actions" style="margin-top:12px;">
+                            <button class="sb-btn sb-btn--primary" type="submit">Upload document</button>
+                        </div>
+                    </form>
+
+                    @foreach (var document in Model.Documents.Where(d => d.DocumentType == step.DocumentType))
+                    {
+                        <div class="document-status">
+                            <i class="bi bi-file-earmark-text"></i>
+                            <span>@document.OriginalFileName</span>
+                            <span class="status-badge @(document.Status == DocumentStatus.Approved ? "status-badge--approved" : document.Status == DocumentStatus.Rejected ? "status-badge--rejected" : "status-badge--pending")">@document.Status</span>
+                            <small>@document.UploadedAt.ToString("d MMM yyyy")</small>
+                        </div>
+                    }
+                }
+
+                <form asp-action="Step" method="post">
+                    <input type="hidden" name="GuestCheckInId" value="@Model.GuestCheckInId" />
+                    <input type="hidden" name="StepOrder" value="@Model.CurrentStep" />
+                    @if (step.Type == "Acknowledge")
+                    {
+                        <label class="form-check">
+                            <input type="checkbox" name="Acknowledged" value="true" />
+                            <span>I have read and understood this information.</span>
+                        </label>
+                    }
+                    <div asp-validation-summary="All" class="validation-summary-errors"></div>
+                    <div class="form-actions" style="margin-top:12px;">
+                        <button class="sb-btn sb-btn--primary" type="submit">Continue</button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <p class="form-help">This check-in has no more steps.</p>
+            }
+
+            @if (Model.CurrentStep >= Model.TotalSteps)
+            {
+                <form asp-action="Submit" method="post" style="border-top:1px solid var(--sb-border-soft); padding-top:var(--sb-5);">
+                    <input type="hidden" name="guestCheckInId" value="@Model.GuestCheckInId" />
+                    <div class="form-actions">
+                        <button class="sb-btn sb-btn--primary" type="submit">Submit check-in for verification</button>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+
+    <style>
+        .progress-track {
+            height: 8px;
+            border-radius: var(--sb-r-pill);
+            background: var(--sb-border-soft);
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--sb-blue-600);
+            border-radius: var(--sb-r-pill);
+        }
+        .document-status {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 12px 14px;
+            border: 1px solid var(--sb-border-soft);
+            border-radius: var(--sb-r-sm);
+            background: var(--sb-bg-alt);
+        }
+        .document-status small {
+            color: var(--sb-text-2);
+            margin-left: auto;
+        }
+    </style>
+</section>

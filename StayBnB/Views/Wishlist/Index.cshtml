@@ -1,0 +1,27 @@
+@model WishlistViewModel
+@{
+    ViewData["Title"] = "Wishlist";
+}
+<section class="container listing-page">
+    <h1>Wishlist</h1>
+    @if (Model.Items.Count == 0)
+    {
+        <p>Your saved stays will appear here.</p>
+        <a class="sb-btn sb-btn--primary" asp-controller="Properties" asp-action="Index">Explore stays</a>
+    }
+    else
+    {
+        <div class="property-grid">
+            @foreach (var item in Model.Items)
+            {
+                <div>
+                    <partial name="_PropertyCard" model="item" />
+                    <form asp-action="Toggle" method="post">
+                        <input type="hidden" name="propertyId" value="@item.Id" />
+                        <button class="sb-btn" type="submit">Remove from wishlist</button>
+                    </form>
+                </div>
+            }
+        </div>
+    }
+</section>

@@ -1,0 +1,28 @@
+@model BookingDetailsViewModel
+@{
+    ViewData["Title"] = $"Booking #{Model.Booking.Id}";
+}
+<section class="container listing-page">
+    <h1>Booking request</h1>
+    <h2><a asp-controller="Properties" asp-action="Details" asp-route-id="@Model.Booking.PropertyId">@Model.Booking.PropertyTitle</a></h2>
+    <p>@Model.PropertyAddress, @Model.Booking.PropertyCity</p>
+    <p>@Model.Booking.CheckInDate.ToString("d MMM yyyy") – @Model.Booking.CheckOutDate.ToString("d MMM yyyy")</p>
+    <p>@Model.Booking.NumberOfGuests guests · @Model.Booking.Nights nights · Status: @Model.Booking.Status</p>
+    <p>R @Model.PricePerNight.ToString("N2") × @Model.Booking.Nights nights</p>
+    <p>Cleaning fee: R @Model.CleaningFee.ToString("N2")</p>
+    <p>Service fee: R @Model.ServiceFee.ToString("N2")</p>
+    <p><strong>Total: R @Model.Booking.TotalPrice.ToString("N2")</strong></p>
+    <h2>Booking timeline</h2>
+    <ol>@foreach (var item in Model.Timeline) { <li><strong>@item.Title</strong> — @item.Description</li> }</ol>
+    @if (Model.Booking.Status is BookingStatus.Pending or BookingStatus.Approved)
+    {
+        <form asp-action="Cancel" asp-route-id="@Model.Booking.Id" method="post">
+            <button class="sb-btn" type="submit">Cancel booking</button>
+        </form>
+    }
+    @if (Model.Booking.Status == BookingStatus.Approved)
+    {
+        <a class="sb-btn sb-btn--primary" asp-controller="GuestCheckIn" asp-action="Start" asp-route-bookingId="@Model.Booking.Id">Start check-in</a>
+    }
+    <a asp-controller="Messages" asp-action="Compose" asp-route-receiverId="@Model.Booking.HostId" asp-route-propertyId="@Model.Booking.PropertyId">Message host</a>
+</section>

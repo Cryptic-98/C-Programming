@@ -1,0 +1,109 @@
+@model BookingRequestViewModel
+@{
+    ViewData["Title"] = "Request to book";
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <h1>Review your request</h1>
+        <p>The host must approve your stay before it is confirmed. You are not charged yet.</p>
+    </header>
+
+    <div class="form-layout">
+        <aside class="content-card" style="display:flex; flex-direction:column; gap:16px;">
+            @if (!string.IsNullOrWhiteSpace(Model.PropertyImageUrl))
+            {
+                <img src="@Model.PropertyImageUrl" alt="@Model.PropertyTitle" style="width:100%; height:180px; object-fit:cover; border-radius:var(--sb-r-sm);" />
+            }
+            <div>
+                <h2 style="margin:0 0 6px; font-size:20px;">@Model.PropertyTitle</h2>
+                <p style="margin:0; color:var(--sb-text-2);">@Model.PropertyCity · Hosted by @Model.HostName</p>
+            </div>
+            <a asp-controller="Properties" asp-action="Details" asp-route-id="@Model.PropertyId" class="sb-btn sb-btn--tertiary">
+                <i class="bi bi-arrow-left"></i> Back to listing
+            </a>
+        </aside>
+
+        <form asp-action="Create" method="post" class="form-card">
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+            <input asp-for="PropertyId" type="hidden" />
+
+            <h2>Your stay</h2>
+            <div class="form-grid">
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="CheckInDate"></label>
+                    <input class="form-input" asp-for="CheckInDate" type="date" />
+                    <span class="field-validation-error" asp-validation-for="CheckInDate"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="CheckOutDate"></label>
+                    <input class="form-input" asp-for="CheckOutDate" type="date" />
+                    <span class="field-validation-error" asp-validation-for="CheckOutDate"></span>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label class="form-label" asp-for="NumberOfGuests"></label>
+                    <input class="form-input" asp-for="NumberOfGuests" type="number" min="1" max="50" />
+                    <span class="field-validation-error" asp-validation-for="NumberOfGuests"></span>
+                </div>
+            </div>
+
+            <h2>Price breakdown</h2>
+            <dl class="price-summary">
+                <div>
+                    <dt>R @Model.PricePerNight.ToString("N2") × @Model.Nights night@(Model.Nights == 1 ? "" : "s")</dt>
+                    <dd>R @((Model.Nights * Model.PricePerNight).ToString("N2"))</dd>
+                </div>
+                <div>
+                    <dt>Cleaning fee</dt>
+                    <dd>R @Model.CleaningFee.ToString("N2")</dd>
+                </div>
+                <div>
+                    <dt>Service fee</dt>
+                    <dd>R @Model.ServiceFee.ToString("N2")</dd>
+                </div>
+                <div class="price-summary__total">
+                    <dt>Estimated total</dt>
+                    <dd>R @Model.TotalPrice.ToString("N2")</dd>
+                </div>
+            </dl>
+
+            <div class="form-actions">
+                <button class="sb-btn sb-btn--primary" type="submit">Request to book</button>
+                <a asp-controller="Properties" asp-action="Details" asp-route-id="@Model.PropertyId" class="sb-btn sb-btn--tertiary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <style>
+        .price-summary {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .price-summary > div {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .price-summary dt {
+            color: var(--sb-text-2);
+            font-weight: 400;
+        }
+        .price-summary dd {
+            margin: 0;
+            font-weight: 500;
+        }
+        .price-summary__total {
+            border-top: 1px solid var(--sb-border-soft);
+            padding-top: 12px;
+        }
+        .price-summary__total dt,
+        .price-summary__total dd {
+            color: var(--sb-text);
+            font-weight: 700;
+            font-size: 17px;
+        }
+    </style>
+</section>
