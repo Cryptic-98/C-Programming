@@ -1,0 +1,34 @@
+StayBnB — Demo Accounts
+========================
+
+These accounts are created by the demo data seeder when the application starts with an empty database. They are intended for local development and demonstration only.
+
+SuperAdmin
+----------
+Email:    superadmin@staybnb.co.za
+Password: SuperAdmin@2026
+
+Admin
+-----
+Email:    admin@staybnb.co.za
+Password: Admin@2026
+
+Host
+----
+Email:    host@staybnb.co.za
+Password: Host@2026
+
+Guest
+-----
+Email:    guest@staybnb.co.za
+Password: Guest@2026
+
+
+Notes
+-----
+- New registrations always receive the Guest role.
+- Approving a host application adds the Host role and removes the Guest role.
+- Only a SuperAdmin can promote a Guest to Admin.
+- The SuperAdmin password is read from the "SuperAdmin:Password" configuration value.
+- Demo passwords can be overridden with configuration such as "DemoUsers:Host:Password".
+- Change or remove these credentials before any public deployment.
