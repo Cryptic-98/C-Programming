@@ -1,0 +1,62 @@
+@model NotificationListViewModel
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <div class="section-header">
+            <div>
+                <h1 style="margin:0;">Notifications</h1>
+                <p>@Model.UnreadCount unread</p>
+            </div>
+            @if (Model.UnreadCount > 0)
+            {
+                <form asp-action="MarkAllRead" method="post">
+                    <button class="sb-btn sb-btn--tertiary" type="submit">Mark all as read</button>
+                </form>
+            }
+        </div>
+    </header>
+
+    @if (Model.Items.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-bell"></i></div>
+            <h2>You're all caught up</h2>
+            <p style="color:var(--sb-text-2); margin:0;">New booking and message updates will appear here.</p>
+        </div>
+    }
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+        @foreach (var item in Model.Items)
+        {
+            <article class="form-card" style="padding:var(--sb-5); @(item.IsRead ? "" : "border-left:3px solid var(--sb-blue-600);")">
+                <div class="section-header">
+                    <div>
+                        <h2 style="margin:0; font-size:18px;">@item.Title</h2>
+                        <p style="margin:4px 0 0; color:var(--sb-text-2);">@item.Message</p>
+                    </div>
+                    <span class="status-badge @(item.IsRead ? "status-badge--completed" : "status-badge--pending")">@(item.IsRead ? "Read" : "Unread")</span>
+                </div>
+                <div class="page-actions" style="justify-content:space-between;">
+                    <small style="color:var(--sb-text-2);">@item.Type · @item.CreatedAt.ToString("g")</small>
+                    <span class="page-actions">
+                        @if (!string.IsNullOrWhiteSpace(item.LinkUrl))
+                        {
+                            <form asp-action="Open" asp-route-id="@item.Id" method="post">
+                                <button class="sb-btn sb-btn--secondary" type="submit">Open</button>
+                            </form>
+                        }
+                        @if (!item.IsRead)
+                        {
+                            <form asp-action="MarkRead" asp-route-id="@item.Id" method="post">
+                                <button class="sb-btn sb-btn--tertiary" type="submit">Mark as read</button>
+                            </form>
+                        }
+                    </span>
+                </div>
+            </article>
+        }
+    </div>
+</section>

@@ -1,0 +1,58 @@
+@model SendMessageViewModel
+@{
+    ViewData["Title"] = "New message";
+    var recipients = ViewBag.Recipients;
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <h1>New message</h1>
+        <p>Start a conversation with a host or guest.</p>
+    </header>
+
+    <div class="form-layout">
+        <aside class="content-card" style="display:flex; flex-direction:column; gap:16px;">
+            <div style="width:72px;height:72px;border-radius:50%;background:var(--sb-blue-50);display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--sb-blue-600);">
+                <i class="bi bi-chat-dots"></i>
+            </div>
+            <div>
+                <h2 style="margin:0 0 8px; font-size:20px;">Keep it friendly</h2>
+                <p style="margin:0; color:var(--sb-text-2);">Messages are private. Ask about dates, the space or check-in details.</p>
+            </div>
+            <a asp-action="Inbox" class="sb-btn sb-btn--tertiary"><i class="bi bi-arrow-left"></i> Inbox</a>
+        </aside>
+
+        <form asp-action="Send" method="post" class="form-card">
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+            <input asp-for="PropertyId" type="hidden" />
+
+            <h2>Message</h2>
+            <div class="form-grid">
+                <div class="form-group form-group--wide" style="margin:0;">
+                    <label class="form-label" asp-for="ReceiverId">Recipient</label>
+                    <select class="form-select" asp-for="ReceiverId">
+                        <option value="">Choose a recipient</option>
+                        @if (recipients is not null)
+                        {
+                            foreach (var recipient in recipients)
+                            {
+                                <option value="@recipient.Id">@recipient.FirstName @recipient.LastName</option>
+                            }
+                        }
+                    </select>
+                    <span class="field-validation-error" asp-validation-for="ReceiverId"></span>
+                </div>
+                <div class="form-group form-group--wide" style="margin:0;">
+                    <label class="form-label" asp-for="Content"></label>
+                    <textarea class="form-textarea" asp-for="Content" rows="5" maxlength="2000" placeholder="Write your message..."></textarea>
+                    <span class="field-validation-error" asp-validation-for="Content"></span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="sb-btn sb-btn--primary" type="submit"><i class="bi bi-send"></i> Send</button>
+                <a asp-action="Inbox" class="sb-btn sb-btn--tertiary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>

@@ -1,0 +1,73 @@
+@model MessageThreadViewModel
+@{
+    ViewData["Title"] = $"Conversation with {Model.OtherDisplayName}";
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <div class="section-header">
+            <div style="display:flex; align-items:center; gap:14px;">
+                <span class="conversation-row__avatar">
+                    @if (!string.IsNullOrWhiteSpace(Model.OtherAvatarUrl))
+                    {
+                        <img src="@Model.OtherAvatarUrl" alt="@Model.OtherDisplayName" />
+                    }
+                    else
+                    {
+                        <i class="bi bi-person"></i>
+                    }
+                </span>
+                <div>
+                    <h1 style="margin:0; font-size:26px;">@Model.OtherDisplayName</h1>
+                    @if (!string.IsNullOrWhiteSpace(Model.PropertyTitle))
+                    {
+                        <p>
+                            About
+                            <a asp-controller="Properties" asp-action="Details" asp-route-id="@Model.PropertyId">@Model.PropertyTitle</a>
+                        </p>
+                    }
+                    else
+                    {
+                        <p>Private conversation</p>
+                    }
+                </div>
+            </div>
+            <a asp-action="Inbox" class="sb-btn sb-btn--tertiary"><i class="bi bi-arrow-left"></i> Inbox</a>
+        </div>
+    </header>
+
+    <div class="form-card" style="gap:var(--sb-6);">
+        @if (Model.Messages.Count == 0)
+        {
+            <p class="form-help" style="text-align:center; padding:24px 0;">
+                No messages yet. Say hello to @Model.OtherDisplayName below.
+            </p>
+        }
+        else
+        {
+            <div class="message-thread">
+                @foreach (var message in Model.Messages)
+                {
+                    <article class="message-bubble @(message.IsMine ? "message-bubble--outgoing" : "message-bubble--incoming")">
+                        <span class="message-bubble__author">@(message.IsMine ? "You" : Model.OtherDisplayName)</span>
+                        <p>@message.Content</p>
+                        <time datetime="@message.Timestamp.ToString("s")">@message.Timestamp.ToString("d MMM, HH:mm")</time>
+                    </article>
+                }
+            </div>
+        }
+
+        <form asp-action="Send" method="post">
+            <input type="hidden" name="ReceiverId" value="@Model.OtherUserId" />
+            <input type="hidden" name="PropertyId" value="@Model.PropertyId" />
+            <div class="form-group" style="margin:0;">
+                <label class="form-label" for="message-content">Message</label>
+                <textarea class="form-textarea" id="message-content" name="Content" rows="3" required maxlength="2000" placeholder="Write a message..."></textarea>
+                @Html.ValidationMessage("Content", null, new { @class = "field-validation-error" })
+            </div>
+            <div class="form-actions" style="justify-content:flex-end; margin-top:12px;">
+                <button class="sb-btn sb-btn--primary" type="submit"><i class="bi bi-send"></i> Send message</button>
+            </div>
+        </form>
+    </div>
+</section>

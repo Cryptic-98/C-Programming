@@ -1,0 +1,57 @@
+@{
+    ViewData["Title"] = "Messages";
+    var conversations = ViewBag.Conversations as List<ConversationViewModel> ?? new();
+}
+
+<section class="container listing-page">
+    <header class="page-header">
+        <div class="section-header">
+            <div>
+                <h1 style="margin:0;">Messages</h1>
+                <p>Your conversations with hosts and guests.</p>
+            </div>
+            <a asp-action="Compose" class="sb-btn sb-btn--primary"><i class="bi bi-pencil-square"></i> New message</a>
+        </div>
+    </header>
+
+    @if (conversations.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-chat-dots"></i></div>
+            <h2>No messages yet</h2>
+            <p style="color:var(--sb-text-2); margin:0;">When you start a conversation it will appear here.</p>
+            <a asp-action="Compose" class="sb-btn sb-btn--primary">Send a message</a>
+        </div>
+    }
+    else
+    {
+        <div style="display:flex; flex-direction:column; gap:12px;">
+            @foreach (var conversation in conversations)
+            {
+                <a asp-action="Thread" asp-route-withUserId="@conversation.UserId" class="conversation-row">
+                    <span class="conversation-row__avatar">
+                        @if (!string.IsNullOrWhiteSpace(conversation.AvatarUrl))
+                        {
+                            <img src="@conversation.AvatarUrl" alt="@conversation.DisplayName" />
+                        }
+                        else
+                        {
+                            <i class="bi bi-person"></i>
+                        }
+                    </span>
+                    <span class="conversation-row__body">
+                        <strong>@conversation.DisplayName</strong>
+                        <span>@conversation.LastMessage</span>
+                    </span>
+                    <span class="conversation-row__meta">
+                        <time datetime="@conversation.LastMessageAt.ToString("s")">@conversation.LastMessageAt.ToString("d MMM, HH:mm")</time>
+                        @if (conversation.UnreadCount > 0)
+                        {
+                            <span class="unread-dot">@conversation.UnreadCount unread</span>
+                        }
+                    </span>
+                </a>
+            }
+        </div>
+    }
+</section>
